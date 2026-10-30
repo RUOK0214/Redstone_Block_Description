@@ -2,6 +2,7 @@ package io.github.ruok0214.redstonehelp;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -11,6 +12,7 @@ import java.util.List;
 
 public final class RedstoneHelpClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
+        ClientTooltipComponentCallback.EVENT.register(component -> component instanceof HelpImage image ? new HelpImageRenderer(image) : null);
         ItemTooltipCallback.EVENT.register((stack, context, flags, lines) -> {
             if (stack.isEmpty() || lines.isEmpty()) return;
             var entry = HelpCatalog.find(BuiltInRegistries.ITEM.getKey(stack.getItem()));

@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "io.github.ruok0214.redstonehelp.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["ItemStackMixin", "TooltipPositionMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

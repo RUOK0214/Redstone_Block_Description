@@ -28,3 +28,9 @@ fabricApi {
     }
 }
 jar { from('LICENSE') { rename { "${it}_${project.archives_base_name}" } } }
+tasks.named('runClientGameTest') {
+    if (project.hasProperty('captureIllustrations')) {
+        jvmArgs '-Dredstone_help.capture=true'
+        if (project.hasProperty('capturePreview')) jvmArgs '-Dredstone_help.capturePreview=true'
+    }
+}

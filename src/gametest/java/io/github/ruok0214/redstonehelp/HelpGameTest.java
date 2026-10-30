@@ -20,6 +20,7 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.List;
 import java.util.LinkedHashSet;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class HelpGameTest implements FabricClientGameTest {
@@ -49,6 +50,19 @@ public final class HelpGameTest implements FabricClientGameTest {
                 check(text(lines).contains(Component.translatable("redstone_help.heading").getString()), "Callback not applied: " + id);
                 check(lines.stream().noneMatch(line -> line.getString().contains("redstone_help.")), "Untranslated key: " + id);
                 for (int i = 2; i < lines.size(); i++) check(mc.font.width(lines.get(i)) <= 250, "Help exceeds wrapping width: " + id);
+                var sequence = Illustrations.forTopic(entry.topic());
+                check(sequence != null, "Missing illustration topic: " + id);
+                for (int i = 0; i < sequence.captions().size(); i++) {
+                    check(mc.getResourceManager().getResource(sequence.texture(i)).isPresent(), "Missing screenshot: " + sequence.texture(i));
+                    check(Language.getInstance().has(sequence.captionKey(i)), "Missing image caption: " + sequence.captionKey(i));
+                }
+                var image = new ItemStack(BuiltInRegistries.ITEM.getValue(id)).getTooltipImage();
+                if (mc.hasShiftDown()) {
+                    check(image.orElse(null) instanceof HelpImage, "Shift must include a screenshot: " + id);
+                    var helpImage = (HelpImage) image.orElseThrow();
+                    check(ClientTooltipComponent.create(helpImage) instanceof HelpImageRenderer, "Image renderer not registered");
+                    check(helpImage.height() + lines.size() * 10 + 2 < mc.getWindow().getGuiScaledHeight(), "Image and text exceed screen: " + id);
+                } else check(image.isEmpty(), "Image must be hidden without Shift: " + id);
             }
             check(HelpCatalog.find(Identifier.fromNamespaceAndPath("another_mod", "repeater")) == null, "Do not describe modded lookalikes");
             check(!text(tooltip(mc, new ItemStack(Items.STONE))).contains(Component.translatable("redstone_help.heading").getString()), "Unrelated item changed");
@@ -60,6 +74,8 @@ public final class HelpGameTest implements FabricClientGameTest {
             var hidden = new ItemStack(Items.REPEATER);
             hidden.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, new LinkedHashSet<>()));
             check(tooltip(mc, hidden).isEmpty(), "Hidden tooltip must stay hidden");
+            check(hidden.getTooltipImage().isEmpty(), "Hidden tooltip must not expose a screenshot");
+            check(new ItemStack(Items.STONE).getTooltipImage().isEmpty(), "Unrelated item received screenshot");
         });
     }
 
@@ -72,6 +88,7 @@ public final class HelpGameTest implements FabricClientGameTest {
     }
 
     @Override public void runTest(ClientGameTestContext context) {
+        if (Boolean.getBoolean("redstone_help.capture")) return;
         try (var world = context.worldBuilder().create()) {
             world.getConnection().waitForChunksDownload();
             world.getServer().runCommand("gamemode survival @a");
@@ -87,6 +104,14 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.getInput().resizeWindow(1000, 700);
             context.runOnClient(mc -> mc.options.guiScale().set(2));
             language(context, "ko_kr");
+            context.runOnClient(mc -> {
+                SlidePlayback.reset();
+                for (long t = 0; t < 1800; t += 100) check(SlidePlayback.frame("piston", 3, t) == 0, "First slide duration");
+                check(SlidePlayback.frame("piston", 3, 1800) == 1, "Slideshow advances");
+                check(SlidePlayback.frame("lever", 2, 1801) == 0, "Switching subjects starts at first slide");
+                check(SlidePlayback.frame("lever", 2, 2400) == 0, "Returning after hover gap restarts");
+                SlidePlayback.reset();
+            });
             checkCatalog(context);
             context.setScreen(() -> new InventoryProbe(Minecraft.getInstance()));
             context.waitForScreen(InventoryProbe.class);
@@ -104,7 +129,11 @@ public final class HelpGameTest implements FabricClientGameTest {
                 check(text(lines).contains("빼기 모드:") && !text(lines).contains("Shift"), "Shift must show full detail");
             });
             checkCatalog(context);
+            context.waitTicks(4);
             context.takeScreenshot("inventory-shift-ko");
+            context.waitFor(mc -> new ItemStack(Items.COMPARATOR).getTooltipImage().filter(HelpImage.class::isInstance)
+                    .map(HelpImage.class::cast).map(image -> image.frame() == 1).orElse(false));
+            context.takeScreenshot("inventory-slideshow-second-ko");
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(5));
             hover(context, point[0], point[1]);
             context.takeScreenshot("redstone-dust-shift-ko");
@@ -115,6 +144,8 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.waitTicks(3);
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar());
             hover(context, point[0], point[1]);
+            checkCatalog(context);
+            context.waitTicks(4);
             context.takeScreenshot("inventory-small-shift-ko");
             context.getInput().releaseShift();
             context.waitTick();
