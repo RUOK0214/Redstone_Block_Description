@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "redstone_help",
+  "version": "${version}",
+  "name": "Redstone Help",
+  "description": "Hover over redstone items for descriptions. Hold Shift for signal strength, timing and activation conditions. Korean and English. Client-only for Minecraft 26.2.",
+  "contact": { "sources": "https://github.com/RUOK0214/Redstone_Block_Description" },
+  "authors": ["RUOK0214"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": { "client": ["io.github.ruok0214.redstonehelp.RedstoneHelpClient"] },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.2",
+    "java": ">=25",
+    "fabric-api": ">=0.160.0+26.2"
+  }
+}
