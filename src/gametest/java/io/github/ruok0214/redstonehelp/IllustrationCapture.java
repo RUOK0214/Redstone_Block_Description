@@ -76,7 +76,10 @@ public final class IllustrationCapture implements FabricClientGameTest {
     }
     private void verifyState(String topic, int frame) {
         switch (topic) {
-            case "redstone", "lever", "stone_button", "wood_button", "stone_pressure_plate", "wood_pressure_plate", "light_weighted_pressure_plate", "heavy_weighted_pressure_plate", "observer", "target", "container", "sculk_sensor", "calibrated_sculk_sensor" -> property(2, 81, 0, "lit", Boolean.toString(frame == 1));
+            case "redstone", "lever", "stone_button", "wood_button", "stone_pressure_plate", "wood_pressure_plate", "light_weighted_pressure_plate", "heavy_weighted_pressure_plate", "observer", "target", "trapped_chest", "jukebox", "sculk_sensor", "calibrated_sculk_sensor" -> property(2, 81, 0, "lit", Boolean.toString(frame == 1));
+            case "detector_rail" -> { property(0, 81, 0, "powered", Boolean.toString(frame == 1)); property(0, 81, 2, "lit", Boolean.toString(frame == 1)); }
+            case "barrel" -> property(0, 81, 0, "open", Boolean.toString(frame == 1));
+            case "furnace", "blast_furnace", "smoker" -> property(0, 81, 0, "lit", Boolean.toString(frame == 1));
             case "redstone_block" -> property(1, 81, 0, "lit", "true");
             case "repeater" -> property(2, 81, 0, "lit", "true");
             case "comparator" -> property(2, 81, 0, "lit", Boolean.toString(frame == 0));
@@ -101,6 +104,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
             context.runOnClient(mc -> { mc.options.fov().set(32); mc.options.bobView().set(false); mc.options.gamma().set(1.0); });
             context.getInput().pressKey(GLFW.GLFW_KEY_F1);
             floor();
+            if (Boolean.getBoolean("redstone_help.captureRevised")) { captureRevised(); return; }
             input(false); wire(-1, 0); wire(0, 0); wire(1, 0); block(2, 81, 0, "redstone_lamp");
             photo("redstone", 0, 5); input(true); photo("redstone", 1, 5);
             toggled("lever", "redstone_wire");
@@ -182,7 +186,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
         floor(); block(0, 81, 0, "oak_planks"); block(0, 82, 0, "note_block"); photo("note_block", 0, 3);
         block(0, 81, 0, "stone"); photo("note_block", 1, 3);
         floor(); block(0, 81, 0, "tnt"); photo("tnt", 0, 3); block(0, 81, 0, "air"); command("summon tnt 0.5 81 0.5"); photo("tnt", 1, 0);
-        for (String rail : new String[]{"rail", "powered_rail", "detector_rail", "activator_rail"}) {
+        for (String rail : new String[]{"rail", "powered_rail", "activator_rail"}) {
             floor(); for (int x = -2; x <= 2; x++) block(x, 81, 0, rail + "[shape=east_west]");
             photo(rail, 0, 3);
             if (rail.equals("detector_rail")) { command("summon minecart 0.5 81.1 0.5"); photo(rail, 1, 2); }
@@ -197,13 +201,56 @@ public final class IllustrationCapture implements FabricClientGameTest {
             photo(topic, 0, 3); input(true); photo(topic, 1, 3);
         }
         floor(); input(false); wire(-1, 0); block(0, 81, 0, "oak_fence_gate[facing=west]"); photo("fence_gate", 0, 3); input(true); photo("fence_gate", 1, 3);
-        floor(); block(0, 81, 0, "trapped_chest[facing=south]"); block(1, 81, 0, "comparator[facing=west]"); block(2, 81, 0, "redstone_lamp"); photo("trapped_chest", 0, 4);
-        floor(); block(0, 81, 0, "chest[facing=south]"); block(1, 81, 0, "comparator[facing=west]"); block(2, 81, 0, "redstone_lamp"); photo("container", 0, 4);
-        for (int slot = 0; slot < 27; slot++) command("item replace block 0 81 0 container." + slot + " with stone 64"); photo("container", 1, 4);
-        floor(); block(0, 81, 0, "lectern[facing=south]"); block(1, 81, 0, "comparator[facing=west]"); photo("lectern", 0, 3);
-        floor(); block(0, 81, 0, "composter[level=0]"); block(1, 81, 0, "comparator[facing=west]"); photo("composter", 0, 3);
-        block(0, 81, 0, "composter[level=8]"); photo("composter", 1, 3);
         floor(); block(0, 81, 0, "lightning_rod[facing=up]"); wire(1, 0); block(2, 81, 0, "redstone_lamp"); photo("lightning_rod", 0, 3);
-        floor(); block(0, 81, 0, "jukebox"); block(1, 81, 0, "comparator[facing=west]"); photo("jukebox", 0, 3);
+        captureRevised();
+    }
+
+    private void openContainer() {
+        world.getServer().runOnServer(server -> {
+            var level = server.overworld();
+            var pos = new BlockPos(0, 81, 0);
+            var container = (net.minecraft.world.MenuProvider) level.getBlockEntity(pos);
+            // A real player opens the menu, producing the same state and block events as ordinary use.
+            var player = server.getPlayerList().getPlayers().getFirst();
+            player.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+            player.getAbilities().flying = true;
+            player.onUpdateAbilities();
+            player.openMenu(container);
+        });
+        step(10);
+        context.setScreen(() -> null);
+        context.waitTicks(4);
+    }
+
+    private void captureRevised() {
+        floor(); camera(4, 85, 7, 146, 35);
+        for (int x = -2; x <= 2; x++) block(x, 81, 0, "detector_rail[shape=east_west]");
+        wire(0, 1); block(0, 81, 2, "redstone_lamp");
+        photo("detector_rail", 0, 3);
+        command("summon minecart 0.5 81.1 0.5"); photo("detector_rail", 1, 3);
+        for (String name : new String[]{"chest", "barrel", "shulker_box", "trapped_chest"}) {
+            floor(); block(0, 81, 0, name + (name.equals("shulker_box") ? "[facing=up]" : "[facing=south]"));
+            String topic = name.equals("chest") ? "container" : name;
+            if (name.equals("trapped_chest")) { wire(1, 0); block(2, 81, 0, "redstone_lamp"); }
+            photo(topic, 0, 3);
+            openContainer(); photo(topic, 1, 0);
+            world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().closeContainer());
+            command("gamemode spectator @a");
+        }
+        for (String name : new String[]{"furnace", "blast_furnace", "smoker"}) {
+            floor(); block(0, 81, 0, name + "[facing=south,lit=false]"); photo(name, 0, 0);
+            block(0, 81, 0, name + "[facing=south,lit=true]"); photo(name, 1, 0);
+        }
+        floor(); block(0, 81, 0, "brewing_stand"); photo("brewing_stand", 0, 0);
+        for (int slot = 0; slot < 3; slot++) command("item replace block 0 81 0 container." + slot + " with potion[potion_contents={potion:'minecraft:water'}]");
+        photo("brewing_stand", 1, 3);
+        floor(); block(0, 81, 0, "lectern[facing=south]"); photo("lectern", 0, 0);
+        block(0, 81, 0, "lectern[facing=south,has_book=true]");
+        command("data merge block 0 81 0 {Book:{id:'minecraft:writable_book',count:1,components:{'minecraft:writable_book_content':{pages:['Redstone Block Description']}}},Page:0}");
+        photo("lectern", 1, 0);
+        floor(); block(0, 81, 0, "composter[level=0]"); photo("composter", 0, 0);
+        block(0, 81, 0, "composter[level=8]"); photo("composter", 1, 0);
+        floor(); block(0, 81, 0, "jukebox"); wire(1, 0); block(2, 81, 0, "redstone_lamp"); photo("jukebox", 0, 0);
+        command("item replace block 0 81 0 container.0 with music_disc_13"); photo("jukebox", 1, 4);
     }
 }

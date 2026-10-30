@@ -32,5 +32,6 @@ tasks.named('runClientGameTest') {
     if (project.hasProperty('captureIllustrations')) {
         jvmArgs '-Dredstone_help.capture=true'
         if (project.hasProperty('capturePreview')) jvmArgs '-Dredstone_help.capturePreview=true'
+        if (project.hasProperty('captureRevised')) jvmArgs '-Dredstone_help.captureRevised=true'
     }
 }

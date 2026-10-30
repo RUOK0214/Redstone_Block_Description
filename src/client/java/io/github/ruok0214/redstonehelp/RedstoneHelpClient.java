@@ -12,6 +12,7 @@ import java.util.List;
 
 public final class RedstoneHelpClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
+        ScrollTooltip.register();
         ClientTooltipComponentCallback.EVENT.register(component -> component instanceof HelpImage image ? new HelpImageRenderer(image) : null);
         ItemTooltipCallback.EVENT.register((stack, context, flags, lines) -> {
             if (stack.isEmpty() || lines.isEmpty()) return;
@@ -24,6 +25,12 @@ public final class RedstoneHelpClient implements ClientModInitializer {
             if (minecraft.hasShiftDown()) {
                 for (int i = 1; i <= entry.details(); i++) {
                     appendWrapped(minecraft, lines, entry.detailKey(i), ChatFormatting.AQUA);
+                }
+                if (ExtraDetails.has(entry.topic())) {
+                    lines.add(Component.empty());
+                    lines.add(Component.empty());
+                    appendWrapped(minecraft, lines, "redstone_help.extra.more", ChatFormatting.GOLD);
+                    for (var key : ExtraDetails.keys(entry.topic())) appendWrapped(minecraft, lines, key, ChatFormatting.GRAY);
                 }
             } else {
                 appendWrapped(minecraft, lines, "redstone_help.hold_shift", ChatFormatting.YELLOW);

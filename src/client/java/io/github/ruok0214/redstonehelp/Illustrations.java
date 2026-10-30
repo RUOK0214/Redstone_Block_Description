@@ -15,6 +15,11 @@ public final class Illustrations {
     private static final Map<String, Sequence> SEQUENCES = create();
     private Illustrations() {}
     public static Sequence forTopic(String topic) { return SEQUENCES.get(topic); }
+    public static Sequence forItem(Identifier item, String topic) {
+        if (!topic.equals("container")) return forTopic(topic);
+        String id = item.getPath().endsWith("shulker_box") ? "shulker_box" : item.getPath();
+        return SEQUENCES.getOrDefault(id, forTopic(topic));
+    }
     public static Map<String, Sequence> sequences() { return SEQUENCES; }
 
     private static Map<String, Sequence> create() {
@@ -57,12 +62,18 @@ public final class Illustrations {
         add(map, "trapdoor", "oak_trapdoor_closed", "oak_trapdoor_open");
         add(map, "iron_trapdoor", "trapdoor_closed", "trapdoor_open");
         add(map, "fence_gate", "oak_gate_closed", "oak_gate_open");
-        add(map, "trapped_chest", "trapped_chest");
-        add(map, "container", "chest_empty", "chest_full");
-        add(map, "lectern", "lectern");
+        add(map, "trapped_chest", "trapped_closed", "trapped_open");
+        add(map, "container", "chest_closed", "chest_open");
+        add(map, "barrel", "barrel_closed", "barrel_open");
+        add(map, "furnace", "furnace_off", "furnace_on");
+        add(map, "blast_furnace", "blast_off", "blast_on");
+        add(map, "smoker", "smoker_off", "smoker_on");
+        add(map, "brewing_stand", "brewing_empty", "brewing_bottles");
+        add(map, "shulker_box", "shulker_closed", "shulker_open");
+        add(map, "lectern", "lectern_empty", "lectern_book");
         add(map, "composter", "composter_empty", "composter_ready");
         add(map, "lightning_rod", "lightning_rod");
-        add(map, "jukebox", "jukebox");
+        add(map, "jukebox", "jukebox_idle", "jukebox_playing");
         return Map.copyOf(map);
     }
     private static void add(Map<String, Sequence> map, String topic, String... captions) {

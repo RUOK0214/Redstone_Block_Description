@@ -9,6 +9,7 @@ public record HelpImageRenderer(HelpImage image) implements ClientTooltipCompone
     @Override public int getWidth(Font font) { return image.panelWidth(); }
     @Override public int getHeight(Font font) { return image.height(); }
     @Override public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor graphics) {
+        if (image.imageHeight() == 0) return;
         int left = x + (width - image.imageWidth()) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, image.sequence().texture(image.frame()), left, y,
                 0, 0, image.imageWidth(), image.imageHeight(), 640, 360, 640, 360);
