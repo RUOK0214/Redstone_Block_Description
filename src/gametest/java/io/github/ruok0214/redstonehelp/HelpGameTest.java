@@ -20,6 +20,7 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.List;
 import java.util.LinkedHashSet;
+import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -125,6 +126,60 @@ public final class HelpGameTest implements FabricClientGameTest {
         context.takeScreenshot(name + "-bottom-ko");
     }
 
+    private static void clickGuide(ClientGameTestContext context, String id) {
+        var control = context.computeOnClient(mc -> ScrollTooltip.controls().stream().filter(c -> c.id().equals(id)).findFirst().orElseThrow());
+        hover(context, control.x() + control.width() / 2, control.y() + control.height() / 2);
+        context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT);
+        context.waitTicks(3);
+    }
+
+    private static void pinnedGuide(ClientGameTestContext context) {
+        context.getInput().pressKey(GLFW.GLFW_KEY_H);
+        context.getInput().releaseShift();
+        hover(context, 10, 10);
+        context.runOnClient(mc -> check(ScrollTooltip.isPinned() && "minecraft:note_block".equals(ScrollTooltip.pinnedItemId()), "Pin survives Shift release and cursor departure"));
+        context.takeScreenshot("pinned-guide-top-ko");
+        clickGuide(context, "pause");
+        int frame = context.computeOnClient(mc -> SlidePlayback.currentFrame());
+        context.waitTicks(45);
+        context.runOnClient(mc -> check(SlidePlayback.paused() && SlidePlayback.currentFrame() == frame, "Pause holds the photograph"));
+        clickGuide(context, "next");
+        context.runOnClient(mc -> check(SlidePlayback.paused() && SlidePlayback.currentFrame() != frame, "Next changes and pauses the photograph"));
+        context.takeScreenshot("pinned-photo-next-ko");
+        clickGuide(context, "previous");
+        context.runOnClient(mc -> check(SlidePlayback.currentFrame() == frame, "Previous restores the photograph"));
+        clickGuide(context, "pause");
+        context.waitFor(mc -> SlidePlayback.currentFrame() != frame);
+        clickGuide(context, "instruments");
+        context.runOnClient(mc -> check(ScrollTooltip.activeSection().equals("instruments") && ScrollTooltip.scrollPosition() > 0, "Clickable contents jumps to instruments"));
+        context.takeScreenshot("pinned-guide-section-ko");
+        clickGuide(context, "photo");
+        context.takeScreenshot("pinned-guide-photo-ko");
+        context.getInput().pressKey(GLFW.GLFW_KEY_HOME);
+        context.runOnClient(mc -> check(ScrollTooltip.scrollPosition() == 0, "Home returns to the beginning"));
+        var inventoryPoint = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(0));
+        hover(context, inventoryPoint[0], inventoryPoint[1]);
+        context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT);
+        context.runOnClient(mc -> check(mc.player.containerMenu.getCarried().isEmpty() && mc.player.getInventory().getItem(0).is(Items.COMPARATOR), "Pinned window consumes inventory clicks"));
+        context.getInput().resizeWindow(854, 480); context.waitTicks(4);
+        context.runOnClient(mc -> {
+            check(ScrollTooltip.isPinned(), "Pin survives resizing");
+            for (var control : ScrollTooltip.controls()) check(control.x() >= 0 && control.x() + control.width() <= mc.getWindow().getGuiScaledWidth()
+                    && control.y() >= 0 && control.y() + control.height() <= mc.getWindow().getGuiScaledHeight(), "Pinned controls stay on screen");
+        });
+        clickGuide(context, "heads");
+        context.takeScreenshot("pinned-guide-small-ko");
+        context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
+        context.runOnClient(mc -> check(!ScrollTooltip.isPinned() && mc.gui.screen() instanceof InventoryProbe, "Escape closes only the guide"));
+        context.getInput().resizeWindow(1000, 700); context.waitTicks(4);
+        var point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(7));
+        hover(context, point[0], point[1]); context.getInput().holdShift(); context.waitTicks(3);
+        context.getInput().pressKey(GLFW.GLFW_KEY_H); context.getInput().releaseShift(); context.waitTicks(3);
+        clickGuide(context, "close");
+        context.runOnClient(mc -> check(!ScrollTooltip.isPinned(), "Close button releases the guide"));
+        hover(context, point[0], point[1]); context.getInput().holdShift(); context.waitTicks(3);
+    }
+
     @Override public void runTest(ClientGameTestContext context) {
         if (Boolean.getBoolean("redstone_help.capture") || Boolean.getBoolean("redstone_help.audit")) return;
         try (var world = context.worldBuilder().create()) {
@@ -192,6 +247,7 @@ public final class HelpGameTest implements FabricClientGameTest {
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(7));
             hover(context, point[0], point[1]);
             context.takeScreenshot("note-block-shift-top-ko");
+            pinnedGuide(context);
             context.runOnClient(mc -> check(ScrollTooltip.scrollLimit() > 0 && ScrollTooltip.scrollPosition() == 0, "Long Shift tooltip starts at top"));
             context.getInput().scroll(-6);
             context.waitTicks(3);
@@ -252,6 +308,11 @@ public final class HelpGameTest implements FabricClientGameTest {
             point = context.computeOnClient(mc -> ((ChestProbe) mc.gui.screen()).firstSlot());
             hover(context, point[0], point[1]);
             context.takeScreenshot("chest-hover-ko");
+            context.getInput().holdShift(); context.waitTicks(3); context.getInput().pressKey(GLFW.GLFW_KEY_H);
+            context.getInput().releaseShift(); context.waitTicks(3);
+            clickGuide(context, "counts"); context.takeScreenshot("pinned-container-counts-ko");
+            context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
+            context.runOnClient(mc -> check(mc.gui.screen() instanceof ChestProbe && !ScrollTooltip.isPinned(), "Close guide preserves the container screen"));
             context.setScreen(() -> null);
             world.getServer().runCommand("gamemode creative @a");
             world.getConnection().waitForClientboundPackets();
@@ -269,6 +330,14 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.takeScreenshot("creative-shift-en");
             context.getInput().scroll(-100); context.waitTicks(3);
             context.takeScreenshot("creative-details-en");
+            context.getInput().pressKey(GLFW.GLFW_KEY_H); context.getInput().releaseShift(); context.waitTicks(3);
+            clickGuide(context, "examples"); context.takeScreenshot("pinned-guide-en");
+            clickGuide(context, "photo"); context.takeScreenshot("pinned-photo-en");
+            context.runOnClient(mc -> {
+                for (var control : ScrollTooltip.controls()) check(control.x() + control.width() <= mc.getWindow().getGuiScaledWidth(), "English pinned controls fit");
+            });
+            context.setScreen(() -> null);
+            context.runOnClient(mc -> check(!ScrollTooltip.isPinned(), "Changing screens clears pinned state"));
             context.getInput().releaseShift();
             context.setScreen(() -> null);
         }

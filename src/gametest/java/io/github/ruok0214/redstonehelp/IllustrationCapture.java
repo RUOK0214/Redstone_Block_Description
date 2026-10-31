@@ -23,7 +23,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
         checkBlock(x, y, z, block.split("\\[")[0]);
     }
     private void floor() {
-        command("fill -8 81 -6 8 89 6 air", "fill -16 80 -16 16 80 16 light_gray_concrete");
+        command("fill -12 81 -6 12 89 6 air", "fill -16 80 -16 16 80 16 light_gray_concrete");
         world.getServer().runOnServer(server -> {
             var entities = new java.util.ArrayList<net.minecraft.world.entity.Entity>();
             server.overworld().getAllEntities().forEach(entities::add);
@@ -75,6 +75,9 @@ public final class IllustrationCapture implements FabricClientGameTest {
         if (!actual.equals(expected)) throw new AssertionError("Capture state at " + x + "," + y + "," + z + " " + name + " expected " + expected + ", got " + actual);
     }
     private void verifyState(String topic, int frame) {
+        if (frame == 2 && (topic.equals("sculk_sensor") || topic.equals("calibrated_sculk_sensor"))) {
+            property(1, 81, 0, "lit", "true"); return;
+        }
         switch (topic) {
             case "redstone", "lever", "stone_button", "wood_button", "stone_pressure_plate", "wood_pressure_plate", "light_weighted_pressure_plate", "heavy_weighted_pressure_plate", "observer", "target", "trapped_chest", "jukebox", "sculk_sensor", "calibrated_sculk_sensor" -> property(2, 81, 0, "lit", Boolean.toString(frame == 1));
             case "detector_rail" -> { property(0, 81, 0, "powered", Boolean.toString(frame == 1)); property(0, 81, 2, "lit", Boolean.toString(frame == 1)); }
@@ -104,6 +107,8 @@ public final class IllustrationCapture implements FabricClientGameTest {
             context.runOnClient(mc -> { mc.options.fov().set(32); mc.options.bobView().set(false); mc.options.gamma().set(1.0); });
             context.getInput().pressKey(GLFW.GLFW_KEY_F1);
             floor();
+            if (Boolean.getBoolean("redstone_help.captureDetailCloseups")) { captureDetailCloseups(); return; }
+            if (Boolean.getBoolean("redstone_help.captureDetails")) { captureDetails(); return; }
             if (Boolean.getBoolean("redstone_help.captureVibrations")) { captureVibrations(); return; }
             if (Boolean.getBoolean("redstone_help.captureCauldrons")) { captureCauldrons(); return; }
             if (Boolean.getBoolean("redstone_help.captureExpanded")) { captureExpanded(); return; }
@@ -208,6 +213,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
         captureRevised();
         captureExpanded();
         captureVibrations();
+        captureDetails();
     }
 
     private void openContainer() {
@@ -335,6 +341,140 @@ public final class IllustrationCapture implements FabricClientGameTest {
         command("weather clear", "fillbiome -16 72 -16 15 95 15 plains");
         world.getServer().runOnServer(server -> server.overworld().setRainLevel(0));
         context.runOnClient(mc -> mc.level.setRainLevel(0));
+    }
+
+    private void captureDetails() {
+        String[][] instruments = {
+                {"dirt", "harp"}, {"sand", "snare"}, {"glass", "hat"}, {"clay", "flute"},
+                {"gold_block", "bell"}, {"white_wool", "guitar"}, {"packed_ice", "chime"},
+                {"bone_block", "xylophone"}, {"iron_block", "iron_xylophone"}, {"soul_sand", "cow_bell"},
+                {"pumpkin", "didgeridoo"}, {"emerald_block", "bit"}, {"hay_block", "banjo"}, {"glowstone", "pling"},
+                {"copper_block", "trumpet"}, {"exposed_copper", "trumpet_exposed"},
+                {"weathered_copper", "trumpet_weathered"}, {"oxidized_copper", "trumpet_oxidized"}};
+        for (int i = 0; i < instruments.length; i++) {
+            floor(); block(0, 81, 0, instruments[i][0]); block(0, 82, 0, "note_block");
+            step(1); property(0, 82, 0, "instrument", instruments[i][1]); photo("note_block", i + 2, 0);
+        }
+        for (int i = 0; i < 2; i++) {
+            floor(); block(0, 81, 0, "gold_block"); block(0, 82, 0, "note_block");
+            block(0, 83, 0, i == 0 ? "zombie_head[rotation=8]" : "creeper_head[rotation=8]");
+            camera(4, 85.5, 6.5, 149, 30);
+            step(1); property(0, 82, 0, "instrument", i == 0 ? "zombie" : "creeper"); photo("note_block", i + 20, 0);
+        }
+        for (String rail : new String[]{"powered_rail", "activator_rail"}) {
+            floor(); camera(1, 92, 21, 180, 29);
+            for (int x = -9; x <= 9; x++) block(x, 81, 0, rail + "[shape=east_west]");
+            block(0, 80, 0, "redstone_block");
+            step(4);
+            for (int x = -9; x <= 9; x++) property(x, 81, 0, "powered", Boolean.toString(Math.abs(x) <= 8));
+            photo(rail, 2, 0);
+            if (rail.equals("powered_rail")) {
+                block(4, 81, 0, "rail[shape=east_west]"); step(4);
+                for (int x = 5; x <= 9; x++) property(x, 81, 0, "powered", "false");
+                photo(rail, 3, 0);
+            }
+        }
+        ordinaryCircuit("repeater[facing=west]"); input(true); step(5);
+        block(0, 81, -1, "repeater[facing=north]"); block(0, 81, -2, "redstone_block");
+        step(6); property(0, 81, 0, "locked", "true"); photo("repeater", 2, 0);
+        input(false); step(6); property(0, 81, 0, "powered", "true"); photo("repeater", 3, 0);
+        for (String sensor : new String[]{"sculk_sensor", "calibrated_sculk_sensor"}) {
+            floor(); block(0, 81, 0, sensor + "[waterlogged=true]"); block(1, 81, 0, "redstone_lamp");
+            world.getServer().runOnServer(server -> {
+                var entity = (net.minecraft.world.level.block.entity.SculkSensorBlockEntity) server.overworld().getBlockEntity(new BlockPos(0, 81, 0));
+                entity.getVibrationUser().onReceiveVibration(server.overworld(), new BlockPos(0, 81, 0), net.minecraft.world.level.gameevent.GameEvent.NOTE_BLOCK_PLAY, null, null, 2);
+            });
+            property(0, 81, 0, "waterlogged", "true"); property(1, 81, 0, "lit", "true"); photo(sensor, 2, 0);
+        }
+        captureDispenserDetails();
+        floor(); camera(4, 85, 7, 149, 30);
+        for (int x = -1; x <= 1; x++) {
+            block(x, 82, 0, "oak_shelf[facing=south]");
+            command("item replace block " + x + " 82 0 container.0 with diamond");
+            block(x, 82, -1, "redstone_block");
+        }
+        step(4); photo("shelf", 3, 0);
+        floor(); block(0, 81, 0, "cauldron"); command("fillbiome -16 72 -16 15 95 15 plains", "weather rain");
+        world.getServer().runOnServer(server -> {
+            var level = server.overworld(); level.setRainLevel(1); level.getRandom().setSeed(2602);
+            for (int i = 0; i < 2048; i++) {
+                var pos = new BlockPos(0, 81, 0); var state = level.getBlockState(pos);
+                if (state.is(net.minecraft.world.level.block.Blocks.WATER_CAULDRON)
+                        && state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LEVEL_CAULDRON) == 3) break;
+                level.tickPrecipitation(pos);
+            }
+        });
+        checkBlock(0, 81, 0, "water_cauldron"); property(0, 81, 0, "level", "3");
+        context.runOnClient(mc -> mc.level.setRainLevel(1)); photo("cauldron", 5, 0);
+        command("weather clear"); world.getServer().runOnServer(server -> server.overworld().setRainLevel(0));
+        context.runOnClient(mc -> mc.level.setRainLevel(0));
+        captureDetailCloseups();
+    }
+
+    private void captureDetailCloseups() {
+        for (String rail : new String[]{"powered_rail", "activator_rail"}) {
+            floor();
+            for (int x = -9; x <= 9; x++) block(x, 81, 0, rail + "[shape=east_west]");
+            block(0, 80, 0, "redstone_block"); step(4);
+            property(8, 81, 0, "powered", "true"); property(9, 81, 0, "powered", "false");
+            camera(12, 84, 5.5, 146, 32);
+            photo(rail, rail.equals("powered_rail") ? 4 : 3, 0);
+            if (rail.equals("powered_rail")) {
+                block(4, 81, 0, "rail[shape=east_west]"); step(4); camera(8, 84, 5.5, 146, 32);
+                property(5, 81, 0, "powered", "false"); photo(rail, 3, 0);
+            }
+        }
+        floor(); camera(4, 86.5, 10, 158, 22);
+        context.runOnClient(mc -> mc.options.fov().set(40));
+        block(0, 81, 0, "cauldron"); block(0, 85, 0, "dripstone_block");
+        block(0, 84, 0, "pointed_dripstone[vertical_direction=down,thickness=tip]");
+        for (int[] p : new int[][]{{1,0},{-1,0},{0,1},{0,-1}}) block(p[0], 86, p[1], "glass");
+        block(0, 86, 0, "lava");
+        world.getServer().runOnServer(server -> {
+            var level = server.overworld(); var pos = new BlockPos(0, 84, 0);
+            net.minecraft.world.level.block.PointedDripstoneBlock.maybeTransferFluid(level.getBlockState(pos), level, pos, 0);
+        });
+        step(60); checkBlock(0, 81, 0, "lava_cauldron"); photo("cauldron", 6, 0);
+        context.runOnClient(mc -> mc.options.fov().set(32));
+    }
+
+    private void dispenserSetup(String item) {
+        floor(); block(0, 81, 0, "dispenser[facing=east]");
+        command("item replace block 0 81 0 container.0 with " + item);
+    }
+    private void dispense() { block(-1, 81, 0, "redstone_block"); step(5); }
+    private void captureDispenserDetails() {
+        dispenserSetup("flint_and_steel"); dispense(); checkBlock(1, 81, 0, "fire"); photo("dispenser", 2, 0);
+        dispenserSetup("shears"); command("summon sheep 1.5 81 0.5 {NoAI:1b,Rotation:[90f,0f]}");
+        photo("dispenser", 3, 0); dispense();
+        world.getServer().runOnServer(server -> {
+            var sheep = server.overworld().getEntitiesOfClass(net.minecraft.world.entity.animal.sheep.Sheep.class, new net.minecraft.world.phys.AABB(0, 80, -1, 3, 84, 2)).getFirst();
+            if (!sheep.isSheared()) throw new AssertionError("Dispenser shears sheep");
+        });
+        photo("dispenser", 4, 0);
+        dispenserSetup("bone_meal 16"); block(1, 80, 0, "farmland[moisture=7]"); block(1, 81, 0, "wheat[age=5]");
+        dispense(); property(1, 81, 0, "age", "7"); photo("dispenser", 5, 0);
+        dispenserSetup("glass_bottle"); block(1, 81, 0, "beehive[facing=south,honey_level=5]"); dispense();
+        property(1, 81, 0, "honey_level", "0");
+        world.getServer().runOnServer(server -> {
+            var container = (net.minecraft.world.Container) server.overworld().getBlockEntity(new BlockPos(0, 81, 0));
+            if (!container.getItem(0).is(net.minecraft.world.item.Items.HONEY_BOTTLE)) throw new AssertionError("Dispenser collects honey");
+        });
+        photo("dispenser", 6, 0); photo("beehive", 2, 0);
+        dispenserSetup("potion[potion_contents={potion:'minecraft:water'}]"); block(1, 81, 0, "dirt"); dispense();
+        checkBlock(1, 81, 0, "mud"); photo("dispenser", 7, 0);
+        dispenserSetup("glowstone"); block(1, 81, 0, "respawn_anchor"); dispense();
+        property(1, 81, 0, "charges", "1"); photo("dispenser", 8, 0);
+        dispenserSetup("honeycomb"); block(1, 81, 0, "copper_block"); dispense();
+        checkBlock(1, 81, 0, "waxed_copper_block"); photo("dispenser", 9, 0);
+        dispenserSetup("iron_chestplate"); command("summon armor_stand 1.5 81 0.5 {Rotation:[180f,0f]}"); dispense();
+        world.getServer().runOnServer(server -> {
+            var entity = server.overworld().getEntitiesOfClass(net.minecraft.world.entity.decoration.ArmorStand.class, new net.minecraft.world.phys.AABB(0, 80, -1, 3, 84, 2)).getFirst();
+            if (!entity.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).is(net.minecraft.world.item.Items.IRON_CHESTPLATE)) throw new AssertionError("Dispenser equips armor");
+        });
+        photo("dispenser", 10, 0);
+        dispenserSetup("minecart"); block(1, 81, 0, "rail[shape=east_west]"); dispense(); photo("dispenser", 11, 0);
+        dispenserSetup("shulker_box"); dispense(); checkBlock(1, 81, 0, "shulker_box"); photo("dispenser", 12, 0);
     }
 
     private void captureRevised() {

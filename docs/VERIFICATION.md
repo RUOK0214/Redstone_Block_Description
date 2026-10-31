@@ -1,19 +1,24 @@
 # 검증 기록
 
-검증일: 2026-10-31. 대상: Redstone Block Description 0.7.1, Minecraft Java 26.2,
+검증일: 2026-10-31. 대상: Redstone Block Description 0.8.0, Minecraft Java 26.2,
 Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 결과
 
 - `gradlew --offline build runClientGameTest`: **BUILD SUCCESSFUL**.
-- `gradlew --offline runClientGameTest -PcaptureIllustrations -PcaptureVibrations`: **BUILD SUCCESSFUL**. 자수정·양털·양탄자 장면 5장을 촬영하고 복사본의 SHA-256 일치를 확인했습니다. 전체 640×360 PNG는 146장입니다.
+- 0.8.0의 `-PcaptureIllustrations -PcaptureDetails`와 `-PcaptureDetailCloseups` 촬영 성공. 44개 추가 원본을 연결했으며, 레일 경계·가마솥 전체 구조의 구도를 확인했습니다.
+- 실제 H 키 입력으로 고정 후 Shift 해제·마우스 이탈에도 유지, 목차 클릭으로 악기·수량표·예시 이동, 사진 위치로 복귀를 검사했습니다.
+- 일시정지 후 45틱 동안 사진 유지, 이전·다음 전환과 자동 정지, 재생 재개를 실제 버튼 클릭으로 검사했습니다.
+- 고정 창 뒤의 아이템 클릭이 차단되고, Esc·닫기 버튼은 인벤토리를 유지하며 도움말만 닫는지 검사했습니다. 화면 변경 시 고정 해제도 확인했습니다.
+- 1000×700 및 854×480에서 크기 변경 후 고정 유지와 버튼 범위, 한국어·영어 목차·사진 버튼을 확인했습니다.
+- `gradlew --offline runClientGameTest -PcaptureIllustrations -PcaptureVibrations`: **BUILD SUCCESSFUL**. 자수정·양털·양탄자 장면 5장을 촬영하고 복사본의 SHA-256 일치를 확인했습니다. 전체 640×360 PNG는 190장입니다.
 - 0.6.0의 `-PcaptureIllustrations -PcaptureCauldrons` 촬영은 다섯 상태 모두 성공했으며 해당 원본을 유지했습니다.
 - 강설 상태의 빈 가마솥에 실제 게임의 강수 처리를 적용하여 가루눈 3단계가 되는지 확인하고, 눈이 내리는 화면을 촬영했습니다.
 - 0.4.0에서는 `-PcaptureIllustrations -PcaptureExpanded` 실행으로 새 장면 38장을 촬영했으며, 당시 복사한 원본의 SHA-256 일치를 확인했습니다.
 - 전체 233개 등록 아이템의 실제 게임 레지스트리 존재 및 기본·상세 툴팁 연결 확인. 아이템이 있는 비교기 출력 블록에 설명이 누락되지 않았는지 검사 통과.
-- 한국어·영어 리소스 각각 568개 키, 양쪽 키 일치 확인.
+- 한국어·영어 리소스 각각 617개 키, 양쪽 키 일치 확인.
 - 한국어·영어 71개 주제에서 기능·작동 조건·수치 위주로 검토.
-- 전체 설명과 양쪽 언어의 표·사진 설명을 대조했습니다. 양탄자 조사를 바로잡고 비교기 읽기와 자체 출력을 구분했습니다. 원본 사진 146장의 해상도 640×360도 모두 확인했습니다.
+- 전체 설명과 양쪽 언어의 표·사진 설명을 대조했습니다. 양탄자 조사를 바로잡고 비교기 읽기와 자체 출력을 구분했습니다. 원본 사진 190장의 해상도 640×360도 모두 확인했습니다.
 - 양 언어에서 모든 설명의 번역 키 해석과 최대 250 GUI 픽셀 줄바꿈 검사 통과.
 - Shift 누르기 및 해제로 상세·기본 표시 전환 확인.
 - 실제 마우스 휠 입력으로 긴 Shift 설명이 스크롤되는지, 끝에서 멈추는지, 다른 아이템 및 Shift 해제 후 처음으로 돌아오는지 검사 통과.
@@ -48,7 +53,14 @@ Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 화면 기록
 
-이번 클라이언트 검증에서 59장으로 기록했습니다.
+이번 클라이언트 검증에서 67장으로 기록했습니다.
+
+- [고정 창의 블록 이름·목차·사진 버튼](screenshots/pinned-guide-top-ko.png)
+- [목차를 눌러 악기 설명으로 이동](screenshots/pinned-guide-section-ko.png)
+- [사진 다음 장을 수동으로 선택](screenshots/pinned-photo-next-ko.png)
+- [작은 화면에서 고정 창 사용](screenshots/pinned-guide-small-ko.png)
+- [상자 화면을 유지한 채 수량표 읽기](screenshots/pinned-container-counts-ko.png)
+- [영어 고정 창과 사진 버튼](screenshots/pinned-photo-en.png)
 
 - [상자 자체의 기능과 비교기 정보의 순서](screenshots/chest-counts-top-ko.png)
 - [통의 용량과 열림 조건](screenshots/barrel-functions-top-ko.png)

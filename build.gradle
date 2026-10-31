@@ -37,5 +37,7 @@ tasks.named('runClientGameTest') {
         if (project.hasProperty('captureExpanded')) jvmArgs '-Dredstone_help.captureExpanded=true'
         if (project.hasProperty('captureCauldrons')) jvmArgs '-Dredstone_help.captureCauldrons=true'
         if (project.hasProperty('captureVibrations')) jvmArgs '-Dredstone_help.captureVibrations=true'
+        if (project.hasProperty('captureDetails')) jvmArgs '-Dredstone_help.captureDetails=true'
+        if (project.hasProperty('captureDetailCloseups')) jvmArgs '-Dredstone_help.captureDetailCloseups=true'
     }
 }

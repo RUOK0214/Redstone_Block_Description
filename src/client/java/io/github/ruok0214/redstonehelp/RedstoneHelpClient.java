@@ -20,7 +20,7 @@ public final class RedstoneHelpClient implements ClientModInitializer {
             if (entry == null) return;
             var minecraft = Minecraft.getInstance();
             lines.add(Component.empty());
-            if (minecraft.hasShiftDown()) {
+            if (minecraft.hasShiftDown() || ScrollTooltip.buildingPinned()) {
                 GuideText.append(minecraft, lines, "redstone_help.heading", "brand");
                 GuideText.append(minecraft, lines, entry.summaryKey(), "summary");
                 for (var section : GuideSections.forItem(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(), entry)) {

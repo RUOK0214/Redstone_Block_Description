@@ -95,7 +95,25 @@ public final class Illustrations {
         add(map, "end_portal_frame", "portal_no_eye", "portal_eye");
         add(map, "command_block", "commands");
         add(map, "copper_chest", "copper_chest_closed", "copper_chest_open");
+        extend(map, "note_block", "note_dirt", "note_sand", "note_glass", "note_clay", "note_gold", "note_wool",
+                "note_ice", "note_bone", "note_iron", "note_soul_sand", "note_pumpkin", "note_emerald", "note_hay",
+                "note_glowstone", "note_copper", "note_exposed", "note_weathered", "note_oxidized", "note_zombie", "note_creeper");
+        extend(map, "powered_rail", "rail_range", "rail_break", "rail_boundary");
+        extend(map, "activator_rail", "rail_range", "rail_boundary");
+        extend(map, "repeater", "repeater_locked", "repeater_locked_memory");
+        extend(map, "sculk_sensor", "sensor_waterlogged");
+        extend(map, "calibrated_sculk_sensor", "sensor_waterlogged");
+        extend(map, "dispenser", "disp_fire", "disp_sheep_before", "disp_sheep_after", "disp_crop", "disp_honey",
+                "disp_mud", "disp_anchor", "disp_wax", "disp_armor", "disp_cart", "disp_shulker");
+        extend(map, "beehive", "disp_honey");
+        extend(map, "shelf", "shelf_connected");
+        extend(map, "cauldron", "cauldron_rain", "cauldron_dripstone");
         return Map.copyOf(map);
+    }
+    private static void extend(Map<String, Sequence> map, String topic, String... captions) {
+        var combined = new java.util.ArrayList<>(map.get(topic).captions());
+        combined.addAll(List.of(captions));
+        map.put(topic, new Sequence(topic, List.copyOf(combined)));
     }
     private static void add(Map<String, Sequence> map, String topic, String... captions) {
         map.put(topic, new Sequence(topic, List.of(captions)));

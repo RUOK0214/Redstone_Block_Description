@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A persistent reading-order index; the active section is underlined, not a clickable tab. */
+/** Persistent section links; clicks are handled by the pinned guide. */
 public final class GuideNavigation {
     public record Label(String id, Component text, int x, int y, int width) {}
     private final List<Label> labels;

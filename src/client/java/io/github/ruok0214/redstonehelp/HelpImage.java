@@ -13,10 +13,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public record HelpImage(String itemId, Illustrations.Sequence sequence, int frame, int panelWidth,
-                        int imageWidth, int imageHeight, List<FormattedCharSequence> captions) implements TooltipComponent {
+                        int imageWidth, int imageHeight, List<FormattedCharSequence> captions, ItemStack stack) implements TooltipComponent {
     public static Optional<TooltipComponent> forStack(ItemStack stack) {
+        if (ScrollTooltip.isPinned()) return Optional.empty();
+        return forStack(stack, false);
+    }
+    public static Optional<TooltipComponent> forStack(ItemStack stack, boolean pinned) {
         var mc = Minecraft.getInstance();
-        if (!mc.hasShiftDown() || stack.isEmpty() || stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT).hideTooltip()) {
+        if ((!pinned && !mc.hasShiftDown()) || stack.isEmpty() || stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT).hideTooltip()) {
             return Optional.empty();
         }
         var entry = HelpCatalog.find(BuiltInRegistries.ITEM.getKey(stack.getItem()));
@@ -27,7 +31,7 @@ public record HelpImage(String itemId, Illustrations.Sequence sequence, int fram
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         int width = Math.max(48, Math.min(216, mc.getWindow().getGuiScaledWidth() - 40));
         if (mc.getResourceManager().getResource(sequence.texture(frame)).isEmpty()) {
-            return Optional.of(new HelpImage(itemId, sequence, frame, 0, 0, 0, List.of()));
+            return Optional.of(new HelpImage(itemId, sequence, frame, 0, 0, 0, List.of(), stack));
         }
         var caption = Component.translatable(sequence.captionKey(frame));
         if (sequence.captions().size() > 1) caption.append(" · ").append(Component.translatable("redstone_help.image.frame", frame + 1, sequence.captions().size()));
@@ -41,7 +45,7 @@ public record HelpImage(String itemId, Illustrations.Sequence sequence, int fram
         while (captions.size() < captionRows) captions.add(Component.empty().getVisualOrderText());
         int imageHeight = Math.min(width * 9 / 16, Math.max(36, mc.getWindow().getGuiScaledHeight() / 3));
         int imageWidth = imageHeight * 16 / 9;
-        return Optional.of(new HelpImage(itemId, sequence, frame, width, imageWidth, imageHeight, List.copyOf(captions)));
+        return Optional.of(new HelpImage(itemId, sequence, frame, width, imageWidth, imageHeight, List.copyOf(captions), stack));
     }
     public int height() { return imageHeight == 0 ? 0 : imageHeight + captions.size() * 10 + 6; }
 }
