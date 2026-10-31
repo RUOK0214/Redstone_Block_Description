@@ -26,11 +26,18 @@ public final class RedstoneHelpClient implements ClientModInitializer {
                 for (int i = 1; i <= entry.details(); i++) {
                     appendWrapped(minecraft, lines, entry.detailKey(i), ChatFormatting.AQUA);
                 }
-                if (ExtraDetails.has(entry.topic())) {
+                boolean countTable = !CountTables.forItem(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()).isEmpty();
+                if (ExtraDetails.has(entry.topic()) || countTable) {
                     lines.add(Component.empty());
                     lines.add(Component.empty());
                     appendWrapped(minecraft, lines, "redstone_help.extra.more", ChatFormatting.GOLD);
                     for (var key : ExtraDetails.keys(entry.topic())) appendWrapped(minecraft, lines, key, ChatFormatting.GRAY);
+                    if (countTable) {
+                        appendWrapped(minecraft, lines, "redstone_help.count.formula", ChatFormatting.GRAY);
+                        appendWrapped(minecraft, lines, "redstone_help.count.assumptions", ChatFormatting.GRAY);
+                        appendWrapped(minecraft, lines, stack.is(net.minecraft.world.item.Items.BREWING_STAND)
+                                ? "redstone_help.count.brewing" : "redstone_help.count.ranges", ChatFormatting.GRAY);
+                    }
                 }
             } else {
                 appendWrapped(minecraft, lines, "redstone_help.hold_shift", ChatFormatting.YELLOW);

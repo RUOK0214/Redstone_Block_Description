@@ -104,6 +104,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
             context.runOnClient(mc -> { mc.options.fov().set(32); mc.options.bobView().set(false); mc.options.gamma().set(1.0); });
             context.getInput().pressKey(GLFW.GLFW_KEY_F1);
             floor();
+            if (Boolean.getBoolean("redstone_help.captureExpanded")) { captureExpanded(); return; }
             if (Boolean.getBoolean("redstone_help.captureRevised")) { captureRevised(); return; }
             input(false); wire(-1, 0); wire(0, 0); wire(1, 0); block(2, 81, 0, "redstone_lamp");
             photo("redstone", 0, 5); input(true); photo("redstone", 1, 5);
@@ -203,6 +204,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
         floor(); input(false); wire(-1, 0); block(0, 81, 0, "oak_fence_gate[facing=west]"); photo("fence_gate", 0, 3); input(true); photo("fence_gate", 1, 3);
         floor(); block(0, 81, 0, "lightning_rod[facing=up]"); wire(1, 0); block(2, 81, 0, "redstone_lamp"); photo("lightning_rod", 0, 3);
         captureRevised();
+        captureExpanded();
     }
 
     private void openContainer() {
@@ -220,6 +222,59 @@ public final class IllustrationCapture implements FabricClientGameTest {
         step(10);
         context.setScreen(() -> null);
         context.waitTicks(4);
+    }
+
+    private void captureExpanded() {
+        floor(); block(0, 81, 0, "oak_shelf[facing=south]"); photo("shelf", 0, 0);
+        command("item replace block 0 81 0 container.0 with diamond", "item replace block 0 81 0 container.1 with redstone", "item replace block 0 81 0 container.2 with book");
+        photo("shelf", 1, 0);
+        for (int x : new int[]{-1, 1}) block(x, 81, 0, "oak_shelf[facing=south]");
+        for (int x = -1; x <= 1; x++) block(x, 80, 0, "redstone_block"); photo("shelf", 2, 4);
+        property(0, 81, 0, "powered", "true");
+        floor(); block(0, 81, 0, "chiseled_bookshelf[facing=south]"); photo("chiseled_bookshelf", 0, 0);
+        for (int slot = 0; slot < 6; slot++) command("item replace block 0 81 0 container." + slot + " with book");
+        photo("chiseled_bookshelf", 1, 0); property(0, 81, 0, "slot_5_occupied", "true");
+        floor(); block(0, 81, 0, "cauldron"); photo("cauldron", 0, 0);
+        block(0, 81, 0, "water_cauldron[level=1]"); photo("cauldron", 1, 0);
+        block(0, 81, 0, "water_cauldron[level=3]"); photo("cauldron", 2, 0);
+        block(0, 81, 0, "lava_cauldron"); photo("cauldron", 3, 0);
+        floor(); block(0, 80, 0, "clay"); block(0, 81, 0, "big_dripleaf[facing=south,tilt=none]"); photo("big_dripleaf", 0, 0);
+        block(0, 81, 0, "big_dripleaf[facing=south,tilt=full]"); photo("big_dripleaf", 1, 0);
+        block(-1, 81, 0, "redstone_block"); photo("big_dripleaf", 2, 0); property(0, 81, 0, "tilt", "none");
+        floor(); camera(-4, 84, 5.5, -144, 32); block(-2, 81, 0, "dispenser[facing=east]"); block(1, 81, 0, "stone");
+        block(0, 81, 0, "stone_button[face=wall,facing=west]"); block(1, 82, 0, "redstone_lamp");
+        command("item replace block -2 81 0 container.0 with wind_charge"); photo("wind_charge", 0, 3);
+        block(-3, 81, 0, "redstone_block"); photo("wind_charge", 1, 8);
+        property(0, 81, 0, "powered", "true"); property(1, 82, 0, "lit", "true");
+        floor(); block(0, 81, 0, "beehive[facing=south,honey_level=0]"); photo("beehive", 0, 0);
+        block(0, 81, 0, "beehive[facing=south,honey_level=5]"); photo("beehive", 1, 0);
+        floor(); for (int i = 0; i < 3; i++) { block(0, 81, 0, "cake[bites=" + (i * 3) + "]"); photo("cake", i, 0); }
+        floor(); block(0, 81, 0, "respawn_anchor[charges=0]"); photo("respawn_anchor", 0, 0);
+        block(0, 81, 0, "respawn_anchor[charges=4]"); photo("respawn_anchor", 1, 0);
+        floor(); block(0, 81, 0, "decorated_pot"); photo("decorated_pot", 0, 0);
+        floor(); input(false); wire(-1, 0); block(0, 81, 0, "bell[attachment=floor,facing=south]");
+        photo("bell", 0, 0); input(true); photo("bell", 1, 2); property(0, 81, 0, "powered", "true");
+        floor(); block(0, 81, 0, "stone");
+        var frame = world.getServer().computeOnServer(server -> {
+            var created = new net.minecraft.world.entity.decoration.ItemFrame(server.overworld(), new BlockPos(0, 81, 1), net.minecraft.core.Direction.SOUTH);
+            server.overworld().addFreshEntity(created); return created;
+        });
+        photo("item_frame", 0, 0);
+        world.getServer().runOnServer(server -> frame.setItem(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COMPASS)));
+        photo("item_frame", 1, 0);
+        world.getServer().runOnServer(server -> frame.setRotation(4)); photo("item_frame", 2, 0);
+        floor(); String[] poses = {"standing", "sitting", "running", "star"};
+        for (int i = 0; i < poses.length; i++) { block(0, 81, 0, "copper_golem_statue[facing=south,copper_golem_pose=" + poses[i] + "]"); photo("copper_golem_statue", i, 0); }
+        floor(); block(0, 80, 0, "pale_oak_log[axis=y]"); block(0, 82, 0, "pale_oak_log[axis=y]");
+        block(0, 81, 0, "creaking_heart[axis=y,creaking_heart_state=dormant]"); photo("creaking_heart", 0, 0);
+        block(0, 81, 0, "creaking_heart[axis=y,creaking_heart_state=awake]"); photo("creaking_heart", 1, 0);
+        floor(); block(0, 81, 0, "end_portal_frame[eye=false]"); photo("end_portal_frame", 0, 0);
+        block(0, 81, 0, "end_portal_frame[eye=true]"); photo("end_portal_frame", 1, 0);
+        floor(); block(-1, 81, 0, "command_block"); block(0, 81, 0, "chain_command_block"); block(1, 81, 0, "repeating_command_block"); photo("command_block", 0, 0);
+        floor(); block(0, 81, 0, "copper_chest[facing=south]"); photo("copper_chest", 0, 0);
+        openContainer(); photo("copper_chest", 1, 0);
+        world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().closeContainer());
+        command("gamemode spectator @a");
     }
 
     private void captureRevised() {

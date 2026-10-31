@@ -32,6 +32,11 @@ public final class HelpCatalog {
             add(map, id, 2, id);
         }
         add(map, "comparator", 3, "comparator");
+        for (String id : new String[]{"chiseled_bookshelf", "cauldron", "big_dripleaf", "wind_charge", "cake",
+                "respawn_anchor", "decorated_pot", "bell", "creaking_heart", "end_portal_frame"}) add(map, id, 2, id);
+        add(map, "beehive", 2, "beehive", "bee_nest");
+        add(map, "item_frame", 2, "item_frame", "glow_item_frame");
+        add(map, "command_block", 2, "command_block", "chain_command_block", "repeating_command_block");
         add(map, "stone_button", 2, "stone_button", "polished_blackstone_button");
         add(map, "stone_pressure_plate", 1, "stone_pressure_plate", "polished_blackstone_pressure_plate");
         add(map, "light_weighted_pressure_plate", 2, "light_weighted_pressure_plate");
@@ -48,12 +53,16 @@ public final class HelpCatalog {
             add(map, "door", 1, wood + "_door");
             add(map, "trapdoor", 1, wood + "_trapdoor");
             add(map, "fence_gate", 2, wood + "_fence_gate");
+            add(map, "shelf", 2, wood + "_shelf");
         }
         for (String wax : new String[]{"", "waxed_"}) {
             for (String age : new String[]{"", "exposed_", "weathered_", "oxidized_"}) {
                 add(map, "copper_bulb", 2, wax + age + "copper_bulb");
                 add(map, "door", 1, wax + age + "copper_door");
                 add(map, "trapdoor", 1, wax + age + "copper_trapdoor");
+                add(map, "container", 2, wax + age + "copper_chest");
+                add(map, "copper_golem_statue", 2, wax + age + "copper_golem_statue");
+                if (!(wax + age).isEmpty()) add(map, "lightning_rod", 1, wax + age + "lightning_rod");
             }
         }
         return Map.copyOf(map);

@@ -17,6 +17,7 @@ public final class Illustrations {
     public static Sequence forTopic(String topic) { return SEQUENCES.get(topic); }
     public static Sequence forItem(Identifier item, String topic) {
         if (!topic.equals("container")) return forTopic(topic);
+        if (item.getPath().endsWith("copper_chest")) return forTopic("copper_chest");
         String id = item.getPath().endsWith("shulker_box") ? "shulker_box" : item.getPath();
         return SEQUENCES.getOrDefault(id, forTopic(topic));
     }
@@ -74,6 +75,22 @@ public final class Illustrations {
         add(map, "composter", "composter_empty", "composter_ready");
         add(map, "lightning_rod", "lightning_rod");
         add(map, "jukebox", "jukebox_idle", "jukebox_playing");
+        add(map, "shelf", "shelf_empty", "shelf_items", "shelf_powered");
+        add(map, "chiseled_bookshelf", "bookshelf_empty", "bookshelf_full");
+        add(map, "cauldron", "cauldron_empty", "cauldron_water_one", "cauldron_water_full", "cauldron_lava");
+        add(map, "big_dripleaf", "dripleaf_flat", "dripleaf_tilt", "dripleaf_powered");
+        add(map, "wind_charge", "wind_before", "wind_after");
+        add(map, "beehive", "hive_empty", "hive_full");
+        add(map, "cake", "cake_whole", "cake_half", "cake_last");
+        add(map, "respawn_anchor", "anchor_empty", "anchor_full");
+        add(map, "decorated_pot", "pot");
+        add(map, "bell", "bell_off", "bell_on");
+        add(map, "item_frame", "frame_empty", "frame_zero", "frame_rotated");
+        add(map, "copper_golem_statue", "statue_standing", "statue_sitting", "statue_running", "statue_star");
+        add(map, "creaking_heart", "heart_dormant", "heart_awake");
+        add(map, "end_portal_frame", "portal_no_eye", "portal_eye");
+        add(map, "command_block", "commands");
+        add(map, "copper_chest", "copper_chest_closed", "copper_chest_open");
         return Map.copyOf(map);
     }
     private static void add(Map<String, Sequence> map, String topic, String... captions) {

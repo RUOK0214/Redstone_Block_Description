@@ -46,6 +46,11 @@ public final class ScrollTooltip {
         var image = components.stream().filter(HelpImageRenderer.class::isInstance)
                 .map(HelpImageRenderer.class::cast).findFirst().orElse(null);
         if (image == null) return false;
+        var tables = CountTables.forItem(image.image().itemId());
+        if (!tables.isEmpty()) {
+            components = new java.util.ArrayList<>(components);
+            for (var table : tables) components.add(new CountTableRenderer(table));
+        }
         var mc = Minecraft.getInstance();
         long now = System.nanoTime() / 1_000_000L;
         String nextId = image.image().itemId();

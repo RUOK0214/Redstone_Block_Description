@@ -4,5 +4,5 @@
   "version": "1.0.0",
   "name": "Redstone Block Description integration tests",
   "environment": "client",
-  "entrypoints": { "fabric-client-gametest": ["io.github.ruok0214.redstonehelp.IllustrationCapture", "io.github.ruok0214.redstonehelp.HelpGameTest"] }
+  "entrypoints": { "fabric-client-gametest": ["io.github.ruok0214.redstonehelp.CatalogAudit", "io.github.ruok0214.redstonehelp.IllustrationCapture", "io.github.ruok0214.redstonehelp.HelpGameTest"] }
 }

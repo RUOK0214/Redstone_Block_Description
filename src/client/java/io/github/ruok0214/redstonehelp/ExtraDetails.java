@@ -13,7 +13,13 @@ public final class ExtraDetails {
             Map.entry("piston", 2), Map.entry("sticky_piston", 3),
             Map.entry("sculk_sensor", 3), Map.entry("calibrated_sculk_sensor", 3),
             Map.entry("crafter", 2), Map.entry("copper_bulb", 2),
-            Map.entry("container", 3), Map.entry("detector_rail", 2));
+            Map.entry("dispenser", 24), Map.entry("dropper", 2), Map.entry("detector_rail", 2),
+            Map.entry("shelf", 3), Map.entry("chiseled_bookshelf", 3), Map.entry("cauldron", 3),
+            Map.entry("big_dripleaf", 3), Map.entry("wind_charge", 3), Map.entry("beehive", 3),
+            Map.entry("cake", 2), Map.entry("respawn_anchor", 2), Map.entry("decorated_pot", 2),
+            Map.entry("bell", 1), Map.entry("item_frame", 2), Map.entry("copper_golem_statue", 2),
+            Map.entry("creaking_heart", 2), Map.entry("end_portal_frame", 1), Map.entry("command_block", 2),
+            Map.entry("lightning_rod", 2), Map.entry("lectern", 2), Map.entry("composter", 2), Map.entry("target", 2));
     private ExtraDetails() {}
     public static boolean has(String topic) { return COUNTS.containsKey(topic); }
     public static List<String> keys(String topic) {

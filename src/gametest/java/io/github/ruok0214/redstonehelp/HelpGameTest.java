@@ -51,6 +51,12 @@ public final class HelpGameTest implements FabricClientGameTest {
                 check(lines.stream().noneMatch(line -> line.getString().contains("redstone_help.")), "Untranslated key: " + id);
                 for (int i = 2; i < lines.size(); i++) check(mc.font.width(lines.get(i)) <= 250, "Help exceeds wrapping width: " + id);
                 for (var key : ExtraDetails.keys(entry.topic())) check(Language.getInstance().has(key), "Missing extra detail: " + key);
+                for (var table : CountTables.forItem(id.toString())) {
+                    check(Language.getInstance().has(table.title().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t ? t.getKey() : ""), "Missing table title");
+                    int cellWidth = new CountTableRenderer(table).getWidth(mc.font) / table.headers().size();
+                    for (var header : table.headers()) check(mc.font.width(header) < cellWidth, "Table header overflow: " + header.getString());
+                    for (var row : table.rows()) for (var cell : row) check(mc.font.width(cell) < cellWidth, "Table cell overflow: " + cell);
+                }
                 var sequence = Illustrations.forItem(id, entry.topic());
                 check(sequence != null, "Missing illustration topic: " + id);
                 for (int i = 0; i < sequence.captions().size(); i++) {
@@ -63,7 +69,7 @@ public final class HelpGameTest implements FabricClientGameTest {
                     var helpImage = (HelpImage) image.orElseThrow();
                     check(ClientTooltipComponent.create(helpImage) instanceof HelpImageRenderer, "Image renderer not registered");
                     check(helpImage.height() < mc.getWindow().getGuiScaledHeight(), "Photo exceeds screen: " + id);
-                    if (ExtraDetails.has(entry.topic())) {
+                    if (ExtraDetails.has(entry.topic()) || !CountTables.forItem(id.toString()).isEmpty()) {
                         int section = java.util.stream.IntStream.range(0, lines.size()).filter(i -> lines.get(i).getString()
                                 .equals(Component.translatable("redstone_help.extra.more").getString())).findFirst().orElse(-1);
                         check(section > 1 && lines.get(section - 1).getString().isEmpty() && lines.get(section - 2).getString().isEmpty(), "Section spacing: " + id);
@@ -93,11 +99,27 @@ public final class HelpGameTest implements FabricClientGameTest {
         context.waitTicks(4);
     }
 
+    private static void expandedPreview(ClientGameTestContext context, net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext world,
+                                        String item, String name, boolean middle) {
+        context.getInput().releaseShift();
+        world.getServer().runCommand("item replace entity @a hotbar.1 with minecraft:" + item);
+        world.getConnection().waitForClientboundPackets();
+        context.waitFor(mc -> BuiltInRegistries.ITEM.getKey(mc.player.getInventory().getItem(1).getItem()).getPath().equals(item));
+        int[] point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(1));
+        hover(context, point[0], point[1]); context.getInput().holdShift(); context.waitTicks(3);
+        context.takeScreenshot(name + "-top-ko");
+        if (middle) { context.getInput().scroll(-10); context.waitTicks(3); context.takeScreenshot(name + "-middle-ko"); }
+        context.getInput().scroll(-100); context.waitTicks(3);
+        context.runOnClient(mc -> check(ScrollTooltip.scrollPosition() == ScrollTooltip.scrollLimit(), "Expanded details reach bottom: " + item));
+        context.takeScreenshot(name + "-bottom-ko");
+    }
+
     @Override public void runTest(ClientGameTestContext context) {
-        if (Boolean.getBoolean("redstone_help.capture")) return;
+        if (Boolean.getBoolean("redstone_help.capture") || Boolean.getBoolean("redstone_help.audit")) return;
         try (var world = context.worldBuilder().create()) {
             world.getConnection().waitForChunksDownload();
             MechanicsChecks.run(context, world);
+            ExpandedMechanicsChecks.run(context, world);
             world.getServer().runCommand("gamemode survival @a");
             world.getServer().runCommand("item replace entity @a hotbar.0 with minecraft:comparator");
             world.getServer().runCommand("item replace entity @a hotbar.1 with minecraft:repeater");
@@ -170,8 +192,15 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.getInput().releaseShift(); context.waitTick();
             context.getInput().holdShift(); context.waitTicks(3);
             context.runOnClient(mc -> check(ScrollTooltip.scrollPosition() == 0, "Releasing Shift resets scroll"));
+            expandedPreview(context, world, "chest", "chest-counts", true);
+            expandedPreview(context, world, "hopper", "hopper-counts", false);
+            expandedPreview(context, world, "brewing_stand", "brewing-counts", false);
+            expandedPreview(context, world, "dispenser", "dispenser-actions", true);
+            expandedPreview(context, world, "oak_shelf", "shelf-details", false);
+            expandedPreview(context, world, "cauldron", "cauldron-details", false);
             context.getInput().resizeWindow(854, 480);
             context.waitTicks(3);
+            expandedPreview(context, world, "chest", "chest-counts-small", true);
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar());
             hover(context, point[0], point[1]);
             checkCatalog(context);
