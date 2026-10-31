@@ -69,6 +69,29 @@ final class ReferenceChecks {
             }
             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             level.setBlockAndUpdate(pos.west(2), Blocks.AIR.defaultBlockState());
+            for (var block : List.of(Blocks.SCULK_SENSOR, Blocks.CALIBRATED_SCULK_SENSOR)) {
+                level.setBlockAndUpdate(pos, block.defaultBlockState().setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, true));
+                var sensor = (SculkSensorBlockEntity) level.getBlockEntity(pos);
+                sensor.getVibrationUser().onReceiveVibration(level, pos, GameEvent.NOTE_BLOCK_PLAY, null, null, 4);
+                check(level.getBlockState(pos).getSignal(level, pos, Direction.UP) > 0, "Waterlogged sensor still emits power");
+                check(level.getBlockState(pos).getAnalogOutputSignal(level, pos, Direction.NORTH) == 10, "Waterlogged sensor preserves frequency output");
+            }
+            var player = server.getPlayerList().getPlayers().getFirst();
+            for (int pageCount : new int[]{1, 2, 5}) {
+                level.setBlockAndUpdate(pos, Blocks.LECTERN.defaultBlockState().setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HAS_BOOK, true));
+                var lectern = (net.minecraft.world.level.block.entity.LecternBlockEntity) level.getBlockEntity(pos);
+                var pages = new java.util.ArrayList<net.minecraft.server.network.Filterable<net.minecraft.network.chat.Component>>();
+                for (int page = 0; page < pageCount; page++) pages.add(net.minecraft.server.network.Filterable.passThrough(net.minecraft.network.chat.Component.literal("Page " + page)));
+                var book = new ItemStack(net.minecraft.world.item.Items.WRITTEN_BOOK);
+                book.set(DataComponents.WRITTEN_BOOK_CONTENT, new net.minecraft.world.item.component.WrittenBookContent(
+                        net.minecraft.server.network.Filterable.passThrough("Audit"), "Test", 0, pages, true));
+                lectern.setBook(book);
+                check(lectern.getRedstoneSignal() == (pageCount == 1 ? 15 : 1), "Lectern first page and one-page exception");
+                var menu = lectern.createMenu(1, player.getInventory(), player);
+                menu.setData(0, pageCount - 1);
+                check(lectern.getRedstoneSignal() == 15, "Lectern final page");
+            }
+            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
         });
     }
 }

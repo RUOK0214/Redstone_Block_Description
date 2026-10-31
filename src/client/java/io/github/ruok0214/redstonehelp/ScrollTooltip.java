@@ -40,7 +40,7 @@ public final class ScrollTooltip {
             ScreenEvents.remove(screen).register(s -> { if (owner == s) reset(); });
         });
     }
-    public static void reset() { owner = null; itemId = null; offset = limit = 0; lastSeen = 0; activeSection = "basics"; tableHeaderPinned = false; }
+    public static void reset() { owner = null; itemId = null; offset = limit = 0; lastSeen = 0; activeSection = "basics"; tableHeaderPinned = false; SlidePlayback.reset(); }
     public static int scrollPosition() { return offset; }
     public static int scrollLimit() { return limit; }
     public static String activeSection() { return activeSection; }

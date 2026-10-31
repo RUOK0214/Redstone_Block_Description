@@ -35,9 +35,12 @@ public final class GuideSections {
             case "big_dripleaf" -> List.of(group(topic, "timing", 1, 2), group(topic, "power", 3));
             case "wind_charge" -> List.of(group(topic, "exceptions", 1), group(topic, "signal", 2), group(topic, "launching", 3));
             case "copper_bulb" -> List.of(group(topic, "brightness", 1), group(topic, "comparator_output", 2));
-            case "beehive", "cake", "respawn_anchor", "item_frame", "copper_golem_statue", "creaking_heart",
+            case "beehive" -> List.of(group(topic, "harvesting", 2, 3), group(topic, "comparator_output", 1));
+            case "respawn_anchor" -> List.of(new Section("charging", ExtraDetails.keys(topic)));
+            case "lectern" -> List.of(group(topic, "signal", 1), group(topic, "comparator_output", 2));
+            case "cake", "item_frame", "copper_golem_statue", "creaking_heart",
                  "end_portal_frame", "composter" -> List.of(new Section("comparator_output", ExtraDetails.keys(topic)));
-            case "lectern", "lightning_rod", "target", "detector_rail" -> List.of(new Section("signal", ExtraDetails.keys(topic)));
+            case "lightning_rod", "target", "detector_rail" -> List.of(new Section("signal", ExtraDetails.keys(topic)));
             default -> ExtraDetails.has(topic) ? List.of(new Section("details", ExtraDetails.keys(topic))) : List.of();
         };
     }

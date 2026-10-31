@@ -177,6 +177,12 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.waitFor(mc -> new ItemStack(Items.COMPARATOR).getTooltipImage().filter(HelpImage.class::isInstance)
                     .map(HelpImage.class::cast).map(image -> image.frame() == 1).orElse(false));
             context.takeScreenshot("inventory-slideshow-second-ko");
+            context.getInput().releaseShift();
+            context.getInput().holdShift();
+            context.waitTick();
+            context.runOnClient(mc -> check(((HelpImage) new ItemStack(Items.COMPARATOR).getTooltipImage().orElseThrow()).frame() == 0,
+                    "Quick Shift release and repress restarts the slideshow"));
+            context.takeScreenshot("inventory-slideshow-restart-ko");
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(5));
             hover(context, point[0], point[1]);
             context.takeScreenshot("redstone-dust-shift-ko");
@@ -215,6 +221,8 @@ public final class HelpGameTest implements FabricClientGameTest {
             expandedPreview(context, world, "oak_shelf", "shelf-details", false);
             expandedPreview(context, world, "cauldron", "cauldron-details", true);
             expandedPreview(context, world, "jukebox", "jukebox-tracks", true);
+            expandedPreview(context, world, "lectern", "lectern-pages", true);
+            expandedPreview(context, world, "beehive", "beehive-function", false);
             expandedPreview(context, world, "amethyst_block", "amethyst-resonance", false);
             expandedPreview(context, world, "white_wool", "wool-vibrations", false);
             expandedPreview(context, world, "white_carpet", "carpet-vibrations", false);
