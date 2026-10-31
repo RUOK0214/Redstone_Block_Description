@@ -10,6 +10,22 @@
 - 구리 블록의 산화 단계에 따른 트럼펫 음색은 [공식 Java 26.1 변경 기록](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1)에서 추가된 기능이며, 26.2 게임의 악기 레지스트리와 직접 대조했습니다.
 - 선반의 교환 동작은 [공식 Copper Age 변경 기록](https://feedback.minecraft.net/hc/en-us/articles/39966147272589-Minecraft-Java-Edition-1-21-9-The-Copper-Age), 돌풍구의 블록 조작은 [공식 1.21 변경 기록](https://www.minecraft.net/en-us/article/minecraft-java-edition-1-21), 크리킹 심장의 거리 출력은 [공식 1.21.2 변경 기록](https://www.minecraft.net/en-us/article/minecraft-java-edition-1-21-2)과 해당 26.2 클래스의 동작을 대조했습니다.
 
+## 보관함 자체의 기능과 가마솥 날씨 정보
+
+0.6.0에서는 보관함의 공통 비교기 설명 앞에 각 블록의 기본 기능을 추가했습니다.
+공식 26.2 클라이언트의 다음 구현과 기본 조리법을 직접 확인했습니다.
+
+- `ChestBlock`, `BarrelBlock`: 상자 위 전도성 블록·앉은 고양이의 열림 방해와 통의 열림 동작.
+- `ShulkerBoxBlock`, `ShulkerBoxBlockEntity`: 27칸, 뚜껑 공간, 내용물 보존과 셜커 상자 중첩 금지.
+- `AbstractFurnaceBlockEntity`, `SmeltingRecipe`, `BlastingRecipe`, `SmokingRecipe`: 호퍼 삽입·추출 방향과 기본 처리 시간 200·100·100게임 틱.
+- `BrewingStandBlockEntity`: 5칸, 양조 400게임 틱, 블레이즈 가루당 연료 20회.
+- 구리 상자의 분류 역할은 [공식 구리 골렘 소개](https://www.minecraft.net/en-us/article/copper-golem)와 게임의 상자 등록 정보를 대조했습니다.
+- [공식 Java 1.17 변경 기록](https://feedback.minecraft.net/hc/en-us/articles/4402626897165-Minecraft-Caves-Cliffs-Part-1-1-17-Java)은 강설 중 가마솥에 가루눈이 모이는 기능을 설명합니다. `ServerLevel.tickPrecipitation`, `CauldronBlock`, `LayeredCauldronBlock`에서 실제 강수·생물 군계 조건, 지붕에 가리는 조건, 내용물 종류별 증가를 확인했습니다.
+- `CauldronInteractions`와 `cauldron_can_remove_dye` 아이템 태그에서 양동이·물병 사용, 장비·셜커 상자 염색 및 깃발 마지막 무늬 제거, 물 한 단계 소모를 확인했습니다. [공식 가마솥 소개](https://www.minecraft.net/en-us/article/cauldron)에 나오는 Bedrock 전용 물약·염색한 물 기능은 Java 설명과 구분했습니다.
+
+강설 장면은 별도 게임 월드에서 빈 가마솥에 실제 강수 처리 함수를 적용해 가루눈 3단계가 되는 것을 검사하고 촬영했습니다.
+비·지붕·점적석·세척의 모든 조합을 인게임 자동 검사한 것은 아니며, 해당 조건은 게임 동작 코드로 확인했습니다.
+
 ## 직접 검사하는 내용
 
 | 항목 | 검사 |
@@ -42,4 +58,5 @@
 - 구리 전구는 전원을 끊어도 현재 켜짐·꺼짐 상태를 유지한다는 점을 분명히 했습니다.
 - 소리 블록의 위 공간과 머리 블록의 소리 조건을 구체화했습니다.
 - 게임 내 한국어 이름에 맞춰 동력 레일이라는 표현을 사용했습니다.
-- 상자·통 등 보관함, 덫 상자, 독서대, 퇴비통, 주크박스의 기존 summary/detail 문장은 한국어·영어 모두 유지했습니다. 사진과 사진 설명, 추가 정보만 변경했습니다.
+- 상자·통 등의 기존 공통 비교기 문장은 한국어·영어 모두 유지하고 ‘비교기 출력’으로 옮겼습니다. 각 블록의 요약과 기본 작동은 자체 기능으로 보충했습니다.
+- 덫 상자·독서대·퇴비통·주크박스의 기존 summary/detail 문장은 유지했습니다. 덫 상자에는 보관·열림 조건을 추가하고 자체 신호와 비교기 출력을 구분했습니다.

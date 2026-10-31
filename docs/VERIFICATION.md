@@ -1,16 +1,17 @@
 # 검증 기록
 
-검증일: 2026-10-31. 대상: Redstone Block Description 0.5.1, Minecraft Java 26.2,
+검증일: 2026-10-31. 대상: Redstone Block Description 0.6.0, Minecraft Java 26.2,
 Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 결과
 
 - `gradlew --offline build runClientGameTest`: **BUILD SUCCESSFUL**.
-- `gradlew --offline runClientGameTest -PcaptureIllustrations -PcaptureExpanded`: **BUILD SUCCESSFUL**. 별도 게임 월드에서 새 장면 38장을 촬영했으며 전체 640×360 PNG는 140장입니다.
-- 새 촬영 결과와 모드 리소스로 복사한 38장의 SHA-256 일치 확인.
+- `gradlew --offline runClientGameTest -PcaptureIllustrations -PcaptureCauldrons`: **BUILD SUCCESSFUL**. 별도 게임 월드에서 가마솥 다섯 상태를 촬영하고 리소스에 복사했습니다. 전체 640×360 PNG는 141장입니다.
+- 강설 상태의 빈 가마솥에 실제 게임의 강수 처리를 적용하여 가루눈 3단계가 되는지 확인하고, 눈이 내리는 화면을 촬영했습니다.
+- 0.4.0에서는 `-PcaptureIllustrations -PcaptureExpanded` 실행으로 새 장면 38장을 촬영했으며, 당시 복사한 원본의 SHA-256 일치를 확인했습니다.
 - 전체 200개 등록 아이템의 실제 게임 레지스트리 존재 및 기본·상세 툴팁 연결 확인. 아이템이 있는 비교기 출력 블록에 설명이 누락되지 않았는지 검사 통과.
-- 한국어·영어 리소스 각각 471개 키, 양쪽 키 일치 확인.
-- 한국어·영어 61개 주제에서 기능·작동 조건·수치 위주로 검토.
+- 한국어·영어 리소스 각각 512개 키, 양쪽 키 일치 확인.
+- 한국어·영어 68개 주제에서 기능·작동 조건·수치 위주로 검토.
 - 양 언어에서 모든 설명의 번역 키 해석과 최대 250 GUI 픽셀 줄바꿈 검사 통과.
 - Shift 누르기 및 해제로 상세·기본 표시 전환 확인.
 - 실제 마우스 휠 입력으로 긴 Shift 설명이 스크롤되는지, 끝에서 멈추는지, 다른 아이템 및 Shift 해제 후 처음으로 돌아오는지 검사 통과.
@@ -20,13 +21,14 @@ Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 - 비교기 신호 계산·신호별 수량·비교기 출력으로 바꾼 제목과 표의 문맥, 긴 제목의 줄바꿈을 확인했습니다.
 - 스크롤에 따라 상단의 현재 항목 표시가 바뀌는지, 작은 화면의 수량표에서도 표 제목과 열 이름이 고정되는지 검사 통과.
 - 실제 화면에서 구분선·글머리표·문단 간격·이름 및 수치 강조·불투명한 배경·진행률 표시를 검토했습니다.
+- 보관함의 기능 요약·기본 작동 뒤에 비교기 설명과 표가 나오는 순서를 확인했습니다. 통·셜커 상자·화로 및 가마솥 날씨 항목의 화면 기록을 추가했습니다.
 - 동력·활성화 레일의 양방향 8칸 전원 전달과 일반 레일에 의한 단절, 20종 악기·추가 재료·25개 음높이 검사 통과.
 - 감지체 반경·활성화 시간, 구리 전구 밝기, 상자 출력 수치 검사 통과. [정보 확인 기록](FACT_CHECK.md) 참고.
 - 수량표의 18개 조건 조합, 총 8,037개 수량을 게임의 실제 계산과 대조했습니다. 도달할 수 없는 출력의 `—` 표시와 양조기 9개 구성 예시도 검사 통과.
 - 선반의 점유 조합과 방향, 책장의 마지막 칸 번호 유지, 가마솥·케이크·정박기·동상 출력 검사 통과.
 - 실제 발사기·공급기에 물 양동이를 넣어 블록 배치와 아이템 배출의 차이 검사 통과.
 - 한국어·영어 표 머리글과 수량이 열 너비 안에 들어가는지 검사 통과. 27·54칸 상자, 호퍼, 양조기, 긴 발사기 설명, 선반·가마솥과 854×480 창을 실제 화면에서 검토.
-- 상자류·덫 상자·독서대·퇴비통·주크박스의 기존 설명 문장이 이전 버전과 동일한지 양쪽 언어를 대조했습니다.
+- 보관함의 기존 공통 비교기 문장과 덫 상자·독서대·퇴비통·주크박스의 기존 summary/detail1/detail2가 0.5.1과 동일한지 양쪽 언어를 대조했습니다.
 - 전체 설명 주제의 사진 파일·상태 번역·이미지 렌더러 연결, Shift를 누를 때만 사진 표시 확인.
 - 1.8초 간격 슬라이드 전환, 주제 변경·마우스 이탈 후 첫 사진으로 돌아오는 동작 검사 통과.
 - 비교기의 비교 모드와 빼기 모드 사진이 실제 화면에서 전환되는 것을 스크린샷으로 확인.
@@ -37,6 +39,14 @@ Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 화면 기록
 
+이번 클라이언트 검증에서 39장으로 기록했습니다.
+
+- [상자 자체의 기능과 비교기 정보의 순서](screenshots/chest-counts-top-ko.png)
+- [통의 용량과 열림 조건](screenshots/barrel-functions-top-ko.png)
+- [기본 작동 아래에 구분된 비교기 정보](screenshots/barrel-functions-middle-ko.png)
+- [셜커 상자의 내용물 보존](screenshots/shulker-functions-top-ko.png)
+- [화로 자체의 기능](screenshots/furnace-functions-top-ko.png)
+- [가마솥의 눈·비 조건과 내용물 변경](screenshots/cauldron-details-middle-ko.png)
 - [27칸 수량표](screenshots/chest-counts-middle-ko.png)
 - [큰 상자 54칸 수량표](screenshots/chest-counts-bottom-ko.png)
 - [호퍼 수량표와 불가능한 출력](screenshots/hopper-counts-bottom-ko.png)

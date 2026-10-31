@@ -16,6 +16,7 @@ public final class Illustrations {
     private Illustrations() {}
     public static Sequence forTopic(String topic) { return SEQUENCES.get(topic); }
     public static Sequence forItem(Identifier item, String topic) {
+        if (topic.equals("chest")) return forTopic("container");
         if (!topic.equals("container")) return forTopic(topic);
         if (item.getPath().endsWith("copper_chest")) return forTopic("copper_chest");
         String id = item.getPath().endsWith("shulker_box") ? "shulker_box" : item.getPath();
@@ -77,7 +78,7 @@ public final class Illustrations {
         add(map, "jukebox", "jukebox_idle", "jukebox_playing");
         add(map, "shelf", "shelf_empty", "shelf_items", "shelf_powered");
         add(map, "chiseled_bookshelf", "bookshelf_empty", "bookshelf_full");
-        add(map, "cauldron", "cauldron_empty", "cauldron_water_one", "cauldron_water_full", "cauldron_lava");
+        add(map, "cauldron", "cauldron_empty", "cauldron_water_one", "cauldron_water_full", "cauldron_lava", "cauldron_snow");
         add(map, "big_dripleaf", "dripleaf_flat", "dripleaf_tilt", "dripleaf_powered");
         add(map, "wind_charge", "wind_before", "wind_after");
         add(map, "beehive", "hive_empty", "hive_full");

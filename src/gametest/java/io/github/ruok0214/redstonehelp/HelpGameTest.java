@@ -115,6 +115,7 @@ public final class HelpGameTest implements FabricClientGameTest {
         context.waitFor(mc -> BuiltInRegistries.ITEM.getKey(mc.player.getInventory().getItem(1).getItem()).getPath().equals(item));
         int[] point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(1));
         hover(context, point[0], point[1]); context.getInput().holdShift(); context.waitTicks(3);
+        context.runOnClient(mc -> mc.gui.toastManager().clear());
         context.takeScreenshot(name + "-top-ko");
         if (middle) { context.getInput().scroll(-10); context.waitTicks(3); context.takeScreenshot(name + "-middle-ko"); }
         context.getInput().scroll(-100); context.waitTicks(3);
@@ -202,11 +203,14 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.getInput().holdShift(); context.waitTicks(3);
             context.runOnClient(mc -> check(ScrollTooltip.scrollPosition() == 0, "Releasing Shift resets scroll"));
             expandedPreview(context, world, "chest", "chest-counts", true);
+            expandedPreview(context, world, "barrel", "barrel-functions", true);
+            expandedPreview(context, world, "shulker_box", "shulker-functions", false);
+            expandedPreview(context, world, "furnace", "furnace-functions", false);
             expandedPreview(context, world, "hopper", "hopper-counts", false);
             expandedPreview(context, world, "brewing_stand", "brewing-counts", false);
             expandedPreview(context, world, "dispenser", "dispenser-actions", true);
             expandedPreview(context, world, "oak_shelf", "shelf-details", false);
-            expandedPreview(context, world, "cauldron", "cauldron-details", false);
+            expandedPreview(context, world, "cauldron", "cauldron-details", true);
             context.getInput().resizeWindow(854, 480);
             context.waitTicks(3);
             expandedPreview(context, world, "chest", "chest-counts-small", true);

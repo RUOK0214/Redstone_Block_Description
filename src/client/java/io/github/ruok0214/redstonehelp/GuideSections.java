@@ -30,7 +30,7 @@ public final class GuideSections {
             case "sculk_sensor", "calibrated_sculk_sensor" -> List.of(group(topic, "range_time", 1, 2), group(topic, "signal", 3));
             case "shelf" -> List.of(group(topic, "swapping", 1, 3), group(topic, "comparator_output", 2));
             case "chiseled_bookshelf" -> List.of(group(topic, "comparator_output", 1), group(topic, "storage", 2, 3));
-            case "cauldron" -> List.of(group(topic, "comparator_output", 1), group(topic, "contents", 2, 3));
+            case "cauldron" -> List.of(group(topic, "weather", 4, 5, 6), group(topic, "contents", 2, 3, 7), group(topic, "comparator_output", 1, 8));
             case "big_dripleaf" -> List.of(group(topic, "timing", 1, 2), group(topic, "power", 3));
             case "wind_charge" -> List.of(group(topic, "exceptions", 1), group(topic, "signal", 2), group(topic, "launching", 3));
             case "copper_bulb" -> List.of(group(topic, "brightness", 1), group(topic, "comparator_output", 2));
@@ -42,8 +42,15 @@ public final class GuideSections {
     }
     public static List<Section> forItem(String itemId, HelpCatalog.Entry entry) {
         var sections = new ArrayList<Section>();
-        sections.add(new Section("basics", java.util.stream.IntStream.rangeClosed(1, entry.details()).mapToObj(entry::detailKey).toList()));
+        if (entry.topic().equals("trapped_chest")) {
+            sections.add(new Section("basics", List.of(entry.detailKey(3), entry.detailKey(4))));
+            sections.add(new Section("signal", List.of(entry.detailKey(1))));
+            sections.add(new Section("comparator_output", List.of(entry.detailKey(2))));
+        } else sections.add(new Section("basics", java.util.stream.IntStream.rangeClosed(1, entry.details()).mapToObj(entry::detailKey).toList()));
         sections.addAll(extras(entry.topic()));
+        if (List.of("chest", "barrel", "furnace", "blast_furnace", "smoker", "brewing_stand", "shulker_box", "copper_chest").contains(entry.topic())) {
+            sections.add(new Section("comparator_output", List.of("redstone_help.container.summary", "redstone_help.container.detail1", "redstone_help.container.detail2")));
+        }
         if (!CountTables.forItem(itemId).isEmpty()) {
             sections.add(new Section("formula", List.of("redstone_help.count.formula", "redstone_help.count.assumptions",
                     itemId.equals("minecraft:brewing_stand") ? "redstone_help.count.brewing" : "redstone_help.count.ranges")));

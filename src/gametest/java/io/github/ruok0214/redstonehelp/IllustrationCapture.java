@@ -104,6 +104,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
             context.runOnClient(mc -> { mc.options.fov().set(32); mc.options.bobView().set(false); mc.options.gamma().set(1.0); });
             context.getInput().pressKey(GLFW.GLFW_KEY_F1);
             floor();
+            if (Boolean.getBoolean("redstone_help.captureCauldrons")) { captureCauldrons(); return; }
             if (Boolean.getBoolean("redstone_help.captureExpanded")) { captureExpanded(); return; }
             if (Boolean.getBoolean("redstone_help.captureRevised")) { captureRevised(); return; }
             input(false); wire(-1, 0); wire(0, 0); wire(1, 0); block(2, 81, 0, "redstone_lamp");
@@ -234,10 +235,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
         floor(); block(0, 81, 0, "chiseled_bookshelf[facing=south]"); photo("chiseled_bookshelf", 0, 0);
         for (int slot = 0; slot < 6; slot++) command("item replace block 0 81 0 container." + slot + " with book");
         photo("chiseled_bookshelf", 1, 0); property(0, 81, 0, "slot_5_occupied", "true");
-        floor(); block(0, 81, 0, "cauldron"); photo("cauldron", 0, 0);
-        block(0, 81, 0, "water_cauldron[level=1]"); photo("cauldron", 1, 0);
-        block(0, 81, 0, "water_cauldron[level=3]"); photo("cauldron", 2, 0);
-        block(0, 81, 0, "lava_cauldron"); photo("cauldron", 3, 0);
+        captureCauldrons();
         floor(); block(0, 80, 0, "clay"); block(0, 81, 0, "big_dripleaf[facing=south,tilt=none]"); photo("big_dripleaf", 0, 0);
         block(0, 81, 0, "big_dripleaf[facing=south,tilt=full]"); photo("big_dripleaf", 1, 0);
         block(-1, 81, 0, "redstone_block"); photo("big_dripleaf", 2, 0); property(0, 81, 0, "tilt", "none");
@@ -275,6 +273,32 @@ public final class IllustrationCapture implements FabricClientGameTest {
         openContainer(); photo("copper_chest", 1, 0);
         world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().closeContainer());
         command("gamemode spectator @a");
+    }
+
+    private void captureCauldrons() {
+        floor(); block(0, 81, 0, "cauldron"); photo("cauldron", 0, 0);
+        block(0, 81, 0, "water_cauldron[level=1]"); photo("cauldron", 1, 0);
+        block(0, 81, 0, "water_cauldron[level=3]"); photo("cauldron", 2, 0);
+        block(0, 81, 0, "lava_cauldron"); photo("cauldron", 3, 0);
+        block(0, 81, 0, "cauldron");
+        command("fillbiome -16 72 -16 15 95 15 snowy_plains", "weather rain");
+        world.getServer().runOnServer(server -> {
+            var level = server.overworld(); var pos = new BlockPos(0, 81, 0);
+            level.setRainLevel(1); level.getRandom().setSeed(2602);
+            for (int i = 0; i < 2048; i++) {
+                var state = level.getBlockState(pos);
+                if (state.is(net.minecraft.world.level.block.Blocks.POWDER_SNOW_CAULDRON)
+                        && state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LEVEL_CAULDRON) == 3) break;
+                level.tickPrecipitation(pos);
+            }
+        });
+        checkBlock(0, 81, 0, "powder_snow_cauldron"); property(0, 81, 0, "level", "3");
+        world.getConnection().waitForClientboundPackets();
+        context.runOnClient(mc -> { mc.level.setRainLevel(1); mc.level.setThunderLevel(0); });
+        photo("cauldron", 4, 0);
+        command("weather clear", "fillbiome -16 72 -16 15 95 15 plains");
+        world.getServer().runOnServer(server -> server.overworld().setRainLevel(0));
+        context.runOnClient(mc -> mc.level.setRainLevel(0));
     }
 
     private void captureRevised() {

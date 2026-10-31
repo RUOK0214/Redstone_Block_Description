@@ -28,10 +28,11 @@ public final class HelpCatalog {
                 "sculk_sensor", "calibrated_sculk_sensor", "piston", "sticky_piston", "slime_block",
                 "honey_block", "dispenser", "dropper", "hopper", "crafter",
                 "note_block", "tnt", "rail", "powered_rail", "activator_rail",
-                "iron_door", "iron_trapdoor", "trapped_chest", "lectern", "composter", "jukebox"}) {
+                "iron_door", "iron_trapdoor", "lectern", "composter", "jukebox"}) {
             add(map, id, 2, id);
         }
         add(map, "comparator", 3, "comparator");
+        add(map, "trapped_chest", 4, "trapped_chest");
         for (String id : new String[]{"chiseled_bookshelf", "cauldron", "big_dripleaf", "wind_charge", "cake",
                 "respawn_anchor", "decorated_pot", "bell", "creaking_heart", "end_portal_frame"}) add(map, id, 2, id);
         add(map, "beehive", 2, "beehive", "bee_nest");
@@ -41,10 +42,10 @@ public final class HelpCatalog {
         add(map, "stone_pressure_plate", 1, "stone_pressure_plate", "polished_blackstone_pressure_plate");
         add(map, "light_weighted_pressure_plate", 2, "light_weighted_pressure_plate");
         add(map, "heavy_weighted_pressure_plate", 2, "heavy_weighted_pressure_plate");
-        add(map, "container", 2, "chest", "barrel", "furnace", "blast_furnace", "smoker", "brewing_stand", "shulker_box");
+        for (String id : new String[]{"chest", "barrel", "furnace", "blast_furnace", "smoker", "brewing_stand", "shulker_box"}) add(map, id, 3, id);
         for (String color : new String[]{"white", "orange", "magenta", "light_blue", "yellow", "lime",
                 "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"}) {
-            add(map, "container", 2, color + "_shulker_box");
+            add(map, "shulker_box", 3, color + "_shulker_box");
         }
         for (String wood : new String[]{"oak", "spruce", "birch", "jungle", "acacia", "dark_oak",
                 "mangrove", "cherry", "pale_oak", "bamboo", "crimson", "warped"}) {
@@ -60,7 +61,7 @@ public final class HelpCatalog {
                 add(map, "copper_bulb", 2, wax + age + "copper_bulb");
                 add(map, "door", 1, wax + age + "copper_door");
                 add(map, "trapdoor", 1, wax + age + "copper_trapdoor");
-                add(map, "container", 2, wax + age + "copper_chest");
+                add(map, "copper_chest", 3, wax + age + "copper_chest");
                 add(map, "copper_golem_statue", 2, wax + age + "copper_golem_statue");
                 if (!(wax + age).isEmpty()) add(map, "lightning_rod", 1, wax + age + "lightning_rod");
             }

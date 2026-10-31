@@ -14,7 +14,7 @@ public final class ExtraDetails {
             Map.entry("sculk_sensor", 3), Map.entry("calibrated_sculk_sensor", 3),
             Map.entry("crafter", 2), Map.entry("copper_bulb", 2),
             Map.entry("dispenser", 24), Map.entry("dropper", 2), Map.entry("detector_rail", 2),
-            Map.entry("shelf", 3), Map.entry("chiseled_bookshelf", 3), Map.entry("cauldron", 3),
+            Map.entry("shelf", 3), Map.entry("chiseled_bookshelf", 3), Map.entry("cauldron", 8),
             Map.entry("big_dripleaf", 3), Map.entry("wind_charge", 3), Map.entry("beehive", 3),
             Map.entry("cake", 2), Map.entry("respawn_anchor", 2), Map.entry("decorated_pot", 2),
             Map.entry("bell", 1), Map.entry("item_frame", 2), Map.entry("copper_golem_statue", 2),
