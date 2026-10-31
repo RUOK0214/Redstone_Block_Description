@@ -20,26 +20,16 @@ public final class RedstoneHelpClient implements ClientModInitializer {
             if (entry == null) return;
             var minecraft = Minecraft.getInstance();
             lines.add(Component.empty());
-            appendWrapped(minecraft, lines, "redstone_help.heading", ChatFormatting.GOLD);
-            appendWrapped(minecraft, lines, entry.summaryKey(), ChatFormatting.GRAY);
             if (minecraft.hasShiftDown()) {
-                for (int i = 1; i <= entry.details(); i++) {
-                    appendWrapped(minecraft, lines, entry.detailKey(i), ChatFormatting.AQUA);
-                }
-                boolean countTable = !CountTables.forItem(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()).isEmpty();
-                if (ExtraDetails.has(entry.topic()) || countTable) {
-                    lines.add(Component.empty());
-                    lines.add(Component.empty());
-                    appendWrapped(minecraft, lines, "redstone_help.extra.more", ChatFormatting.GOLD);
-                    for (var key : ExtraDetails.keys(entry.topic())) appendWrapped(minecraft, lines, key, ChatFormatting.GRAY);
-                    if (countTable) {
-                        appendWrapped(minecraft, lines, "redstone_help.count.formula", ChatFormatting.GRAY);
-                        appendWrapped(minecraft, lines, "redstone_help.count.assumptions", ChatFormatting.GRAY);
-                        appendWrapped(minecraft, lines, stack.is(net.minecraft.world.item.Items.BREWING_STAND)
-                                ? "redstone_help.count.brewing" : "redstone_help.count.ranges", ChatFormatting.GRAY);
-                    }
+                GuideText.append(minecraft, lines, "redstone_help.heading", "brand");
+                GuideText.append(minecraft, lines, entry.summaryKey(), "summary");
+                for (var section : GuideSections.forItem(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(), entry)) {
+                    GuideText.append(minecraft, lines, section.titleKey(), "section/" + section.id());
+                    for (var key : section.keys()) GuideText.append(minecraft, lines, key, "paragraph");
                 }
             } else {
+                appendWrapped(minecraft, lines, "redstone_help.heading", ChatFormatting.GOLD);
+                appendWrapped(minecraft, lines, entry.summaryKey(), ChatFormatting.GRAY);
                 appendWrapped(minecraft, lines, "redstone_help.hold_shift", ChatFormatting.YELLOW);
             }
         });

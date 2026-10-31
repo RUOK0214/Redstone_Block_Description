@@ -69,11 +69,19 @@ public final class HelpGameTest implements FabricClientGameTest {
                     var helpImage = (HelpImage) image.orElseThrow();
                     check(ClientTooltipComponent.create(helpImage) instanceof HelpImageRenderer, "Image renderer not registered");
                     check(helpImage.height() < mc.getWindow().getGuiScaledHeight(), "Photo exceeds screen: " + id);
-                    if (ExtraDetails.has(entry.topic()) || !CountTables.forItem(id.toString()).isEmpty()) {
-                        int section = java.util.stream.IntStream.range(0, lines.size()).filter(i -> lines.get(i).getString()
-                                .equals(Component.translatable("redstone_help.extra.more").getString())).findFirst().orElse(-1);
-                        check(section > 1 && lines.get(section - 1).getString().isEmpty() && lines.get(section - 2).getString().isEmpty(), "Section spacing: " + id);
+                    var sections = GuideSections.forItem(id.toString(), entry);
+                    for (var section : sections) {
+                        check(Language.getInstance().has(section.titleKey()), "Missing section title: " + section.id());
+                        check(text(lines).contains(Component.translatable(section.titleKey()).getString()), "Section title not shown: " + id);
                     }
+                    var extras = GuideSections.extras(entry.topic()).stream().flatMap(s -> s.keys().stream()).toList();
+                    check(extras.size() == ExtraDetails.keys(entry.topic()).size() && new java.util.HashSet<>(extras).equals(new java.util.HashSet<>(ExtraDetails.keys(entry.topic()))), "Grouped text lost or duplicated: " + id);
+                    var navigation = new GuideNavigation(mc.font, GuideText.width(mc), sections.stream().map(GuideSections.Section::id).toList());
+                    for (var label : navigation.labels()) check(label.x() + label.width() <= GuideText.width(mc), "Navigation overflow: " + id);
+                    var styled = lines.stream().map(line -> GuideTextRenderer.from(line.getVisualOrderText())).filter(java.util.Objects::nonNull).toList();
+                    check(styled.stream().filter(line -> line.section() != null).count() == sections.size(), "Section tags survive wrapping: " + id);
+                    for (var line : styled) check(line.getWidth(mc.font) <= GuideText.width(mc), "Indented text overflow: " + id);
+                    check(styled.stream().filter(line -> line.section() != null).allMatch(line -> line.getHeight(mc.font) >= 24), "Section separation");
                 } else check(image.isEmpty(), "Image must be hidden without Shift: " + id);
             }
             check(HelpCatalog.find(Identifier.fromNamespaceAndPath("another_mod", "repeater")) == null, "Do not describe modded lookalikes");
@@ -183,6 +191,7 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.waitTicks(3);
             context.runOnClient(mc -> check(ScrollTooltip.scrollPosition() == ScrollTooltip.scrollLimit(), "Bottom clamp"));
             context.takeScreenshot("note-block-shift-bottom-ko");
+            context.runOnClient(mc -> check(!ScrollTooltip.activeSection().equals("basics"), "Index follows scrolled section"));
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar(8));
             hover(context, point[0], point[1]);
             context.runOnClient(mc -> check(ScrollTooltip.scrollPosition() == 0, "Different item resets scroll"));
@@ -201,6 +210,10 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.getInput().resizeWindow(854, 480);
             context.waitTicks(3);
             expandedPreview(context, world, "chest", "chest-counts-small", true);
+            context.runOnClient(mc -> {
+                check(ScrollTooltip.activeSection().equals("counts"), "Index identifies the count tables");
+                check(ScrollTooltip.tableHeaderPinned(), "Small-screen table keeps its headers visible");
+            });
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar());
             hover(context, point[0], point[1]);
             checkCatalog(context);
