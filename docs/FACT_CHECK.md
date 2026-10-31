@@ -26,6 +26,15 @@
 강설 장면은 별도 게임 월드에서 빈 가마솥에 실제 강수 처리 함수를 적용해 가루눈 3단계가 되는 것을 검사하고 촬영했습니다.
 비·지붕·점적석·세척의 모든 조합을 인게임 자동 검사한 것은 아니며, 해당 조건은 게임 동작 코드로 확인했습니다.
 
+## 0.7.0 수량표·음반·진동 정보
+
+- 수량표 제목은 문법 차이보다 인과관계가 모호한 표현을 바로잡기 위해 변경했습니다. 최대 겹침 개수와 전체 낱개 수를 구분하고, 아이템 수 → 비교기 출력 순서로 표를 읽게 했습니다. 계산값은 기존 검증값을 유지합니다.
+- 공식 26.2 클라이언트의 `data/minecraft/jukebox_song/*.json` 22개와 실제 음반 아이템을 모두 대조했습니다. `GuideTables.TRACKS`에 곡 제목과 기본 비교기 출력을 기록하며 `ReferenceChecks`에서 누락과 출력값을 검사합니다. 최신 곡 Bounce의 출력 8은 [공식 26.2 변경 기록](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-2)에서도 확인할 수 있습니다.
+- `JukeboxBlockEntity.getComparatorOutput`은 들어 있는 음반을 읽으며 재생 상태를 조건으로 삼지 않습니다. 실제 월드에서 재생 중 일반 출력 15, 정지 후 일반 출력 0, 유지되는 비교기 출력, 제거 후 비교기 출력 0을 22종 모두 확인했습니다. 바로 아래 위치에 전원이 전달되는 것도 검사했습니다.
+- `VibrationSystem`의 주파수 대응에서 표의 대표 이벤트 15개를 직접 대조합니다. 표는 각 주파수의 대표 예이며 모든 이벤트를 열거하지는 않습니다. 같은 주파수의 공명은 [공식 Java 1.20 변경 기록](https://www.minecraft.net/en-us/article/minecraft-java-edition-1-20)과 `SculkSensorBlock.tryResonateVibration`의 여섯 면 검사에 근거합니다.
+- `vibration_resonators` 태그에는 일반 자수정 블록만 포함됩니다. `occludes_vibration_signals`에는 양털 블록, `dampens_vibrations`에는 양털과 양탄자가 포함됩니다. 32개 색상 변형의 태그와 실제 수신기의 양털·양탄자 차단 차이, 설치 이벤트 억제를 검사했습니다.
+- 자수정 장면에서는 첫 감지체의 입력 주파수 1이 다른 감지체에서도 1로 수신되는지와 조명 점등을 검사했습니다. 물에 잠긴 감지체의 소리와 출력 조건은 `SculkSensorBlock.activate` 및 비교기 출력 코드를 확인했습니다.
+
 ## 직접 검사하는 내용
 
 | 항목 | 검사 |

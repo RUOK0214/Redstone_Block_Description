@@ -11,7 +11,7 @@ public final class ExtraDetails {
             Map.entry("note_block", 25), Map.entry("repeater", 2),
             Map.entry("comparator", 3), Map.entry("hopper", 3),
             Map.entry("piston", 2), Map.entry("sticky_piston", 3),
-            Map.entry("sculk_sensor", 3), Map.entry("calibrated_sculk_sensor", 3),
+            Map.entry("sculk_sensor", 7), Map.entry("calibrated_sculk_sensor", 7), Map.entry("jukebox", 4),
             Map.entry("crafter", 2), Map.entry("copper_bulb", 2),
             Map.entry("dispenser", 24), Map.entry("dropper", 2), Map.entry("detector_rail", 2),
             Map.entry("shelf", 3), Map.entry("chiseled_bookshelf", 3), Map.entry("cauldron", 8),

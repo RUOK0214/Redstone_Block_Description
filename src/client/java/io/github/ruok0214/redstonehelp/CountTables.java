@@ -38,12 +38,14 @@ public final class CountTables {
     }
     private static Table inventory(int slots, boolean allStackSizes, boolean large) {
         int[] sizes = allStackSizes ? new int[]{64, 16, 1} : new int[]{64};
-        var headers = new ArrayList<Component>(); headers.add(Component.translatable("redstone_help.table.signal"));
+        var headers = new ArrayList<Component>();
         for (int size : sizes) headers.add(Component.translatable("redstone_help.table.stack", size));
+        headers.add(Component.translatable("redstone_help.table.signal"));
         var rows = new ArrayList<List<String>>();
         for (int signal = 0; signal <= 15; signal++) {
-            var row = new ArrayList<String>(); row.add(Integer.toString(signal));
+            var row = new ArrayList<String>();
             for (int size : sizes) row.add(ranges(slots, size).get(signal).text());
+            row.add(Integer.toString(signal));
             rows.add(List.copyOf(row));
         }
         return new Table(Component.translatable(large ? "redstone_help.table.double" : "redstone_help.table.slots", slots), List.copyOf(headers), List.copyOf(rows));

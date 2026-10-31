@@ -26,6 +26,9 @@ public final class Illustrations {
 
     private static Map<String, Sequence> create() {
         var map = new LinkedHashMap<String, Sequence>();
+        add(map, "amethyst_block", "amethyst_idle", "amethyst_resonating");
+        add(map, "wool", "wool_clear", "wool_blocked");
+        add(map, "wool_carpet", "carpet_passes");
         for (String topic : new String[]{"redstone", "lever", "redstone_lamp", "powered_rail", "activator_rail"}) {
             add(map, topic, "power_off", "power_on");
         }

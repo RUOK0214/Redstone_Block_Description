@@ -71,7 +71,7 @@ public final class ScrollTooltip {
         }
         if (!placedPhoto) arranged.add(image);
         components = arranged;
-        var tables = CountTables.forItem(image.image().itemId());
+        var tables = GuideTables.forItem(image.image().itemId());
         if (!tables.isEmpty()) {
             components = new java.util.ArrayList<>(components);
             for (var table : tables) components.add(new CountTableRenderer(table));

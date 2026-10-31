@@ -32,6 +32,7 @@ public final class HelpCatalog {
             add(map, id, 2, id);
         }
         add(map, "comparator", 3, "comparator");
+        add(map, "amethyst_block", 3, "amethyst_block");
         add(map, "trapped_chest", 4, "trapped_chest");
         for (String id : new String[]{"chiseled_bookshelf", "cauldron", "big_dripleaf", "wind_charge", "cake",
                 "respawn_anchor", "decorated_pot", "bell", "creaking_heart", "end_portal_frame"}) add(map, id, 2, id);
@@ -46,6 +47,8 @@ public final class HelpCatalog {
         for (String color : new String[]{"white", "orange", "magenta", "light_blue", "yellow", "lime",
                 "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"}) {
             add(map, "shulker_box", 3, color + "_shulker_box");
+            add(map, "wool", 3, color + "_wool");
+            add(map, "wool_carpet", 2, color + "_carpet");
         }
         for (String wood : new String[]{"oak", "spruce", "birch", "jungle", "acacia", "dark_oak",
                 "mangrove", "cherry", "pale_oak", "bamboo", "crimson", "warped"}) {

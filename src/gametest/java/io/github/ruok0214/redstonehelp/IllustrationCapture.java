@@ -104,6 +104,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
             context.runOnClient(mc -> { mc.options.fov().set(32); mc.options.bobView().set(false); mc.options.gamma().set(1.0); });
             context.getInput().pressKey(GLFW.GLFW_KEY_F1);
             floor();
+            if (Boolean.getBoolean("redstone_help.captureVibrations")) { captureVibrations(); return; }
             if (Boolean.getBoolean("redstone_help.captureCauldrons")) { captureCauldrons(); return; }
             if (Boolean.getBoolean("redstone_help.captureExpanded")) { captureExpanded(); return; }
             if (Boolean.getBoolean("redstone_help.captureRevised")) { captureRevised(); return; }
@@ -206,6 +207,7 @@ public final class IllustrationCapture implements FabricClientGameTest {
         floor(); block(0, 81, 0, "lightning_rod[facing=up]"); wire(1, 0); block(2, 81, 0, "redstone_lamp"); photo("lightning_rod", 0, 3);
         captureRevised();
         captureExpanded();
+        captureVibrations();
     }
 
     private void openContainer() {
@@ -273,6 +275,40 @@ public final class IllustrationCapture implements FabricClientGameTest {
         openContainer(); photo("copper_chest", 1, 0);
         world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().closeContainer());
         command("gamemode spectator @a");
+    }
+
+    private void captureVibrations() {
+        floor(); camera(5, 85, 8, 149, 29);
+        block(-1, 81, 0, "sculk_sensor"); block(0, 81, 0, "amethyst_block");
+        block(3, 81, 0, "sculk_sensor"); block(4, 81, 0, "redstone_lamp");
+        photo("amethyst_block", 0, 2);
+        world.getServer().runOnServer(server -> {
+            var level = server.overworld(); var pos = new BlockPos(-1, 81, 0);
+            var sensor = (net.minecraft.world.level.block.entity.SculkSensorBlockEntity) level.getBlockEntity(pos);
+            sensor.getVibrationUser().onReceiveVibration(level, pos, net.minecraft.world.level.gameevent.GameEvent.STEP, null, null, 2);
+        });
+        photo("amethyst_block", 1, 12);
+        property(4, 81, 0, "lit", "true");
+        world.getServer().runOnServer(server -> {
+            var sensor = (net.minecraft.world.level.block.entity.SculkSensorBlockEntity) server.overworld().getBlockEntity(new BlockPos(3, 81, 0));
+            if (sensor.getLastVibrationFrequency() != 1) throw new AssertionError("Resonance preserves frequency");
+        });
+        for (int variant = 0; variant < 3; variant++) {
+            floor(); camera(5, 85, 8, 149, 29);
+            block(-3, 81, 0, "note_block"); block(2, 81, 0, "sculk_sensor"); block(3, 81, 0, "redstone_lamp");
+            if (variant == 1) block(0, 81, 0, "white_wool");
+            if (variant == 2) block(0, 81, 0, "white_carpet");
+            boolean accepted = world.getServer().computeOnServer(server -> {
+                var level = server.overworld();
+                var sensor = (net.minecraft.world.level.block.entity.SculkSensorBlockEntity) level.getBlockEntity(new BlockPos(2, 81, 0));
+                return sensor.getListener().handleGameEvent(level, net.minecraft.world.level.gameevent.GameEvent.NOTE_BLOCK_PLAY,
+                        net.minecraft.world.level.gameevent.GameEvent.Context.of(level.getBlockState(new BlockPos(-3, 81, 0))),
+                        net.minecraft.world.phys.Vec3.atCenterOf(new BlockPos(-3, 81, 0)));
+            });
+            if (accepted != (variant != 1)) throw new AssertionError("Wool occlusion differs from carpet");
+            photo(variant == 2 ? "wool_carpet" : "wool", variant == 2 ? 0 : variant, 12);
+            property(3, 81, 0, "lit", Boolean.toString(variant != 1));
+        }
     }
 
     private void captureCauldrons() {

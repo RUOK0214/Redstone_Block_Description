@@ -51,11 +51,13 @@ public final class HelpGameTest implements FabricClientGameTest {
                 check(lines.stream().noneMatch(line -> line.getString().contains("redstone_help.")), "Untranslated key: " + id);
                 for (int i = 2; i < lines.size(); i++) check(mc.font.width(lines.get(i)) <= 250, "Help exceeds wrapping width: " + id);
                 for (var key : ExtraDetails.keys(entry.topic())) check(Language.getInstance().has(key), "Missing extra detail: " + key);
-                for (var table : CountTables.forItem(id.toString())) {
+                for (var table : GuideTables.forItem(id.toString())) {
                     check(Language.getInstance().has(table.title().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t ? t.getKey() : ""), "Missing table title");
-                    int cellWidth = new CountTableRenderer(table).getWidth(mc.font) / table.headers().size();
-                    for (var header : table.headers()) check(mc.font.width(header) < cellWidth, "Table header overflow: " + header.getString());
-                    for (var row : table.rows()) for (var cell : row) check(mc.font.width(cell) < cellWidth, "Table cell overflow: " + cell);
+                    var renderer = new CountTableRenderer(table);
+                    for (int col = 0; col < table.headers().size(); col++) {
+                        check(mc.font.width(table.headers().get(col)) < renderer.columnWidth(col), "Table header overflow: " + table.headers().get(col).getString());
+                        for (var row : table.rows()) check(mc.font.width(row.get(col)) < renderer.columnWidth(col), "Table cell overflow: " + row.get(col));
+                    }
                 }
                 var sequence = Illustrations.forItem(id, entry.topic());
                 check(sequence != null, "Missing illustration topic: " + id);
@@ -117,7 +119,7 @@ public final class HelpGameTest implements FabricClientGameTest {
         hover(context, point[0], point[1]); context.getInput().holdShift(); context.waitTicks(3);
         context.runOnClient(mc -> mc.gui.toastManager().clear());
         context.takeScreenshot(name + "-top-ko");
-        if (middle) { context.getInput().scroll(-10); context.waitTicks(3); context.takeScreenshot(name + "-middle-ko"); }
+        if (middle) { context.getInput().scroll(item.equals("chest") ? -17 : -10); context.waitTicks(3); context.takeScreenshot(name + "-middle-ko"); }
         context.getInput().scroll(-100); context.waitTicks(3);
         context.runOnClient(mc -> check(ScrollTooltip.scrollPosition() == ScrollTooltip.scrollLimit(), "Expanded details reach bottom: " + item));
         context.takeScreenshot(name + "-bottom-ko");
@@ -129,6 +131,7 @@ public final class HelpGameTest implements FabricClientGameTest {
             world.getConnection().waitForChunksDownload();
             MechanicsChecks.run(context, world);
             ExpandedMechanicsChecks.run(context, world);
+            ReferenceChecks.run(world);
             world.getServer().runCommand("gamemode survival @a");
             world.getServer().runCommand("item replace entity @a hotbar.0 with minecraft:comparator");
             world.getServer().runCommand("item replace entity @a hotbar.1 with minecraft:repeater");
@@ -211,12 +214,22 @@ public final class HelpGameTest implements FabricClientGameTest {
             expandedPreview(context, world, "dispenser", "dispenser-actions", true);
             expandedPreview(context, world, "oak_shelf", "shelf-details", false);
             expandedPreview(context, world, "cauldron", "cauldron-details", true);
+            expandedPreview(context, world, "jukebox", "jukebox-tracks", true);
+            expandedPreview(context, world, "amethyst_block", "amethyst-resonance", false);
+            expandedPreview(context, world, "white_wool", "wool-vibrations", false);
+            expandedPreview(context, world, "white_carpet", "carpet-vibrations", false);
+            expandedPreview(context, world, "calibrated_sculk_sensor", "sculk-frequencies", true);
             context.getInput().resizeWindow(854, 480);
             context.waitTicks(3);
             expandedPreview(context, world, "chest", "chest-counts-small", true);
             context.runOnClient(mc -> {
                 check(ScrollTooltip.activeSection().equals("counts"), "Index identifies the count tables");
                 check(ScrollTooltip.tableHeaderPinned(), "Small-screen table keeps its headers visible");
+            });
+            expandedPreview(context, world, "jukebox", "jukebox-tracks-small", false);
+            context.runOnClient(mc -> {
+                check(ScrollTooltip.activeSection().equals("tracks"), "Index identifies the disc table");
+                check(ScrollTooltip.tableHeaderPinned(), "Small-screen disc table keeps its headers visible");
             });
             point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar());
             hover(context, point[0], point[1]);
