@@ -27,7 +27,11 @@ fabricApi {
         eula = true
     }
 }
-jar { from('LICENSE') { rename { "${it}_${project.archives_base_name}" } } }
+jar {
+    from('LICENSE') { rename { "${it}_${project.archives_base_name}" } }
+    from('THIRD_PARTY_NOTICES.md')
+    from('licenses') { into('licenses') }
+}
 tasks.named('runClientGameTest') {
     if (project.hasProperty('auditCatalog')) jvmArgs '-Dredstone_help.audit=true'
     if (project.hasProperty('captureIllustrations')) {

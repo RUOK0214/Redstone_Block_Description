@@ -77,14 +77,13 @@ public final class ScrollTooltip {
                     }
                     return false;
                 }
-                if (key.key() == GLFW.GLFW_KEY_H && mc.hasShiftDown() && owner == s && now() - lastSeen < 250 && !lastStack.isEmpty()) {
-                    pinnedStack = lastStack.copy();
-                    pinned = true;
+                if (HelpKeyMappings.PIN.matches(key) && pin(s)) {
                     return false;
                 }
                 return true;
             });
             ScreenMouseEvents.allowMouseClick(screen).register((s, event) -> {
+                if (!pinned && HelpKeyMappings.PIN.matchesMouse(event) && pin(s)) return false;
                 if (!pinned || owner != s) return true;
                 if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                     for (var control : List.copyOf(controls)) if (control.contains(event.x(), event.y())) {
@@ -104,6 +103,13 @@ public final class ScrollTooltip {
         });
     }
     private static long now() { return System.nanoTime() / 1_000_000L; }
+    private static boolean pin(Screen screen) {
+        if (!HelpSettings.enabled() || HelpKeyMappings.PIN.isUnbound() || !Minecraft.getInstance().hasShiftDown()
+                || owner != screen || now() - lastSeen >= 250 || lastStack.isEmpty()) return false;
+        pinnedStack = lastStack.copy();
+        pinned = true;
+        return true;
+    }
     public static void reset() {
         owner = null; itemId = null; offset = limit = 0; lastSeen = 0; activeSection = "basics";
         tableHeaderPinned = pinned = false; lastStack = pinnedStack = ItemStack.EMPTY; selectedSection = null;
@@ -265,7 +271,8 @@ public final class ScrollTooltip {
             graphics.fill(x + width - 3, thumbY, x + width - 1, thumbY + thumb, 0xffa5bfd6);
         }
         graphics.horizontalLine(x, x + width - 1, bodyY + viewport + 3, 0xff455568);
-        graphics.text(font, Component.translatable(fixed ? "redstone_help.pinned_hint" : "redstone_help.pin_hint"), x, bodyY + viewport + 6, 0xffbdcddd);
+        var hint = fixed ? Component.translatable("redstone_help.pinned_hint") : HelpKeyMappings.pinHint();
+        graphics.text(font, hint, x, bodyY + viewport + 6, 0xffbdcddd);
         if (scrolling) {
             String percent = Math.round(offset * 100f / limit) + "%";
             graphics.text(font, percent, x + textWidth - font.width(percent), bodyY + viewport + 6, 0xffffd27d);

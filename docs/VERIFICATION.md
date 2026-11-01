@@ -1,11 +1,16 @@
 # 검증 기록
 
-검증일: 2026-10-31. 대상: Redstone Block Description 0.8.0, Minecraft Java 26.2,
+검증일: 2026-11-01. 대상: Redstone Block Description 0.9.0, Minecraft Java 26.2,
 Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 결과
 
 - `gradlew --offline build runClientGameTest`: **BUILD SUCCESSFUL**.
+- 기본 키 설정 화면에서 고정 키를 H에서 J로 변경하고, 이전 H가 작동하지 않으며 J로 고정되는지 검사했습니다. 설정 저장 후 다른 키로 임시 변경하고 옵션을 다시 읽어 J로 복원되는지 확인했습니다.
+- 같은 설정 화면에서 마우스 버튼 지정, Esc로 미지정, 초기화 버튼으로 H 복원을 실제 입력으로 검사했습니다. 지정한 키와 미지정 안내가 도움말에 표시되는지도 확인했습니다.
+- 실제 클라이언트 명령 경로로 `/rbd off`, `on`, `toggle`, `status`, `/rbd`, `/redstonedescription toggle`을 실행했습니다. 끄면 고정 창·설명·사진이 사라지고 원래 아이템 이름·설명은 유지됩니다.
+- 꺼진 상태를 설정 파일에 저장하고 다시 읽어 유지되는지 검사했습니다. 테스트는 별도 게임 실행 폴더의 옵션·설정만 변경했습니다.
+- 모드 메타데이터에 기능·사용법·지원 환경을 추가하고, Mod Menu용 한국어·영어 소개 번역을 포함했습니다. Mod Menu 자체 화면은 별도로 실행하지 않았습니다.
 - 0.8.0의 `-PcaptureIllustrations -PcaptureDetails`와 `-PcaptureDetailCloseups` 촬영 성공. 44개 추가 원본을 연결했으며, 레일 경계·가마솥 전체 구조의 구도를 확인했습니다.
 - 실제 H 키 입력으로 고정 후 Shift 해제·마우스 이탈에도 유지, 목차 클릭으로 악기·수량표·예시 이동, 사진 위치로 복귀를 검사했습니다.
 - 일시정지 후 45틱 동안 사진 유지, 이전·다음 전환과 자동 정지, 재생 재개를 실제 버튼 클릭으로 검사했습니다.
@@ -16,7 +21,7 @@ Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 - 강설 상태의 빈 가마솥에 실제 게임의 강수 처리를 적용하여 가루눈 3단계가 되는지 확인하고, 눈이 내리는 화면을 촬영했습니다.
 - 0.4.0에서는 `-PcaptureIllustrations -PcaptureExpanded` 실행으로 새 장면 38장을 촬영했으며, 당시 복사한 원본의 SHA-256 일치를 확인했습니다.
 - 전체 233개 등록 아이템의 실제 게임 레지스트리 존재 및 기본·상세 툴팁 연결 확인. 아이템이 있는 비교기 출력 블록에 설명이 누락되지 않았는지 검사 통과.
-- 한국어·영어 리소스 각각 617개 키, 양쪽 키 일치 확인.
+- 한국어·영어 리소스 각각 626개 키, 양쪽 키 일치 확인.
 - 한국어·영어 71개 주제에서 기능·작동 조건·수치 위주로 검토.
 - 전체 설명과 양쪽 언어의 표·사진 설명을 대조했습니다. 양탄자 조사를 바로잡고 비교기 읽기와 자체 출력을 구분했습니다. 원본 사진 190장의 해상도 640×360도 모두 확인했습니다.
 - 양 언어에서 모든 설명의 번역 키 해석과 최대 250 GUI 픽셀 줄바꿈 검사 통과.
@@ -53,7 +58,14 @@ Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 화면 기록
 
-이번 클라이언트 검증에서 67장으로 기록했습니다.
+이번 클라이언트 검증에서 73장으로 기록했습니다.
+
+- [조작 설정에서 고정 키를 J로 변경](screenshots/keybinding-custom-ko.png)
+- [변경한 키가 반영된 고정 안내](screenshots/custom-key-hint-ko.png)
+- [설명 전체를 끈 상태](screenshots/help-disabled-ko.png)
+- [온·오프 명령어와 상태 안내](screenshots/help-command-status-ko.png)
+- [고정 키 미지정 안내](screenshots/keybinding-unbound-ko.png)
+- [초기화 버튼으로 기본 H 복원](screenshots/keybinding-default-ko.png)
 
 - [고정 창의 블록 이름·목차·사진 버튼](screenshots/pinned-guide-top-ko.png)
 - [목차를 눌러 악기 설명으로 이동](screenshots/pinned-guide-section-ko.png)

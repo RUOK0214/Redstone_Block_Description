@@ -20,7 +20,7 @@ public record HelpImage(String itemId, Illustrations.Sequence sequence, int fram
     }
     public static Optional<TooltipComponent> forStack(ItemStack stack, boolean pinned) {
         var mc = Minecraft.getInstance();
-        if ((!pinned && !mc.hasShiftDown()) || stack.isEmpty() || stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT).hideTooltip()) {
+        if (!HelpSettings.enabled() || (!pinned && !mc.hasShiftDown()) || stack.isEmpty() || stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT).hideTooltip()) {
             return Optional.empty();
         }
         var entry = HelpCatalog.find(BuiltInRegistries.ITEM.getKey(stack.getItem()));

@@ -567,7 +567,7 @@
   "redstone_help.extra.shelf.3": "One or two connected shelves swap the rightmost 3 or 6 hotbar slots; three swap all 9.",
   "redstone_help.extra.shelf.2": "Viewed from the front, occupied left, middle and right slots contribute 1, 2 and 4. A comparator connected behind the shelf reads their sum from 0 to 7; the count within each stack does not matter.",
   "redstone_help.guide.section.harvesting": "Honey harvesting",
-  "redstone_help.pin_hint": "H: pin · Wheel: scroll",
+  "redstone_help.pin_hint": "%s: pin · Wheel: scroll",
   "redstone_help.pinned_hint": "Wheel: scroll · Esc: close",
   "redstone_help.pinned": "Pinned guide",
   "redstone_help.close": "Close [Esc]",
@@ -615,5 +615,14 @@
   "redstone_help.image.shelf_connected": "3 connected powered shelves · interaction swaps 9 hotbar slots",
   "redstone_help.image.cauldron_rain": "Cauldron filled with water from rain",
   "redstone_help.image.cauldron_dripstone": "Stalactite below a lava source → collect lava",
-  "redstone_help.image.rail_boundary": "8th rail from power is on · 9th is off"
+  "redstone_help.image.rail_boundary": "8th rail from power is on · 9th is off",
+  "redstone_help.pin_unbound": "Pin key unbound · Set in Controls",
+  "key.category.redstone_help.general": "Redstone Block Description",
+  "key.redstone_help.pin": "Pin help window",
+  "redstone_help.command.on": "Redstone Block Description: on",
+  "redstone_help.command.off": "Redstone Block Description: off",
+  "redstone_help.command.usage": "/rbd on: enable · off: disable · toggle: switch · status: check",
+  "redstone_help.command.save_error": "The current state was applied but could not be saved. The previous setting may return next session.",
+  "modmenu.summaryTranslation.redstone_help": "Redstone descriptions, photos and reference tables in your inventory",
+  "modmenu.descriptionTranslation.redstone_help": "A client-side guide to redstone block functions and operating conditions, shown directly in inventory tooltips.\n\nHold Shift to open photos and detailed information, then scroll with the mouse wheel.\nPress the pin key (default H) while viewing Shift details to keep the guide open. Click its contents, pause photos or step backward/forward. Close with Esc.\nChange the pin key in Options → Controls → Key Binds → Redstone Block Description.\n\n/rbd on: enable · /rbd off: disable\n/rbd toggle: switch · /rbd status: check\nYour on/off preference is saved between sessions.\n\nIncludes 233 vanilla items, 71 topics and 190 real in-game photos. Reference tables cover container quantities and comparator output, music discs, note-block instruments and dispenser actions.\n\nKorean and English. Requires Minecraft Java 26.2, Fabric Loader 0.19.5+, Fabric API 0.160.0+26.2 and Java 25+. No server installation needed."
 }

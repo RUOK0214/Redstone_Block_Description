@@ -12,10 +12,13 @@ import java.util.List;
 
 public final class RedstoneHelpClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
+        HelpSettings.load();
+        HelpKeyMappings.register();
+        HelpCommands.register();
         ScrollTooltip.register();
         ClientTooltipComponentCallback.EVENT.register(component -> component instanceof HelpImage image ? new HelpImageRenderer(image) : null);
         ItemTooltipCallback.EVENT.register((stack, context, flags, lines) -> {
-            if (stack.isEmpty() || lines.isEmpty()) return;
+            if (!HelpSettings.enabled() || stack.isEmpty() || lines.isEmpty()) return;
             var entry = HelpCatalog.find(BuiltInRegistries.ITEM.getKey(stack.getItem()));
             if (entry == null) return;
             var minecraft = Minecraft.getInstance();

@@ -21,6 +21,11 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.List;
 import java.util.LinkedHashSet;
 import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
+import net.minecraft.client.gui.screens.options.controls.KeyBindsList;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -180,6 +185,94 @@ public final class HelpGameTest implements FabricClientGameTest {
         hover(context, point[0], point[1]); context.getInput().holdShift(); context.waitTicks(3);
     }
 
+    private static void clickPinBinding(ClientGameTestContext context, boolean reset) {
+        var button = context.computeOnClient(mc -> {
+            try {
+            var list = (KeyBindsList) mc.gui.screen().children().stream().filter(KeyBindsList.class::isInstance).findFirst().orElseThrow();
+            var keyField = KeyBindsList.KeyEntry.class.getDeclaredField("key");
+            keyField.setAccessible(true);
+            for (var entry : list.children()) if (entry instanceof KeyBindsList.KeyEntry && keyField.get(entry) == HelpKeyMappings.PIN) {
+                list.setScrollAmount(1_000_000);
+                return (Button) entry.children().get(reset ? 1 : 0);
+            }
+            throw new AssertionError("Pin binding is present in the vanilla Controls screen");
+            } catch (ReflectiveOperationException exception) { throw new AssertionError("Could not inspect the Controls row", exception); }
+        });
+        context.waitTicks(3);
+        var point = context.computeOnClient(mc -> new int[]{button.getX() + button.getWidth() / 2, button.getY() + button.getHeight() / 2});
+        hover(context, point[0], point[1]); context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT); context.waitTicks(2);
+    }
+
+    private static void hoverComparator(ClientGameTestContext context) {
+        context.setScreen(() -> new InventoryProbe(Minecraft.getInstance()));
+        var point = context.computeOnClient(mc -> ((InventoryProbe) mc.gui.screen()).hotbar());
+        hover(context, point[0], point[1]); context.getInput().holdShift(); context.waitTicks(3);
+    }
+
+    private static void configurationChecks(ClientGameTestContext context) {
+        context.setScreen(() -> new KeyBindsScreen(null, Minecraft.getInstance().options));
+        clickPinBinding(context, false);
+        context.getInput().pressKey(GLFW.GLFW_KEY_J); context.waitTicks(3);
+        context.runOnClient(mc -> {
+            check(HelpKeyMappings.PIN.matches(new net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_J, 0, 0)), "Controls rebinds the pin key");
+            check(HelpKeyMappings.pinHint().getString().contains("J"), "Hint shows the selected key");
+            mc.options.save();
+            HelpKeyMappings.PIN.setKey(InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_K));
+            mc.options.load(); KeyMapping.resetMapping();
+            check(HelpKeyMappings.PIN.saveString().equals("key.keyboard.j"), "Key setting persists after options reload");
+        });
+        context.takeScreenshot("keybinding-custom-ko");
+        hoverComparator(context);
+        context.getInput().pressKey(GLFW.GLFW_KEY_H); context.waitTick();
+        context.runOnClient(mc -> check(!ScrollTooltip.isPinned(), "Old H key no longer pins"));
+        context.takeScreenshot("custom-key-hint-ko");
+        context.getInput().pressKey(GLFW.GLFW_KEY_J); context.waitTick();
+        context.runOnClient(mc -> check(ScrollTooltip.isPinned(), "Reassigned key pins the guide"));
+        context.runOnClient(mc -> mc.getConnection().sendCommand("rbd off"));
+        context.runOnClient(mc -> {
+            check(!HelpSettings.enabled() && !ScrollTooltip.isPinned(), "Off command disables and closes pinned help");
+            var item = new ItemStack(Items.COMPARATOR);
+            item.set(DataComponents.CUSTOM_NAME, Component.literal("Keep this name"));
+            item.set(DataComponents.LORE, new ItemLore(List.of(Component.literal("Keep this lore"))));
+            var lines = tooltip(mc, item);
+            check(text(lines).contains("Keep this name") && text(lines).contains("Keep this lore")
+                    && !text(lines).contains(Component.translatable("redstone_help.heading").getString()), "Off keeps original item text only");
+            check(item.getTooltipImage().isEmpty(), "Off removes photographs");
+            HelpSettings.load(); check(!HelpSettings.enabled(), "Disabled preference persists after reload");
+        });
+        context.waitTicks(3); context.takeScreenshot("help-disabled-ko");
+        context.runOnClient(mc -> mc.getConnection().sendCommand("rbd on"));
+        context.runOnClient(mc -> check(HelpSettings.enabled(), "On command enables help"));
+        context.runOnClient(mc -> mc.getConnection().sendCommand("redstonedescription toggle"));
+        context.runOnClient(mc -> check(!HelpSettings.enabled(), "Long command alias toggles help"));
+        context.runOnClient(mc -> mc.getConnection().sendCommand("rbd toggle"));
+        context.runOnClient(mc -> {
+            check(HelpSettings.enabled(), "Toggle restores help");
+            mc.getConnection().sendCommand("rbd status");
+            mc.getConnection().sendCommand("rbd");
+        });
+        context.getInput().releaseShift(); context.setScreen(() -> null);
+        context.takeScreenshot("help-command-status-ko");
+
+        context.setScreen(() -> new KeyBindsScreen(null, Minecraft.getInstance().options));
+        clickPinBinding(context, false); context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_4); context.waitTicks(2);
+        hoverComparator(context); context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_4); context.waitTick();
+        context.runOnClient(mc -> check(ScrollTooltip.isPinned() && mc.player.containerMenu.getCarried().isEmpty(), "Mouse binding pins without moving an item"));
+        context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE); context.getInput().releaseShift();
+        context.setScreen(() -> new KeyBindsScreen(null, Minecraft.getInstance().options));
+        clickPinBinding(context, false); context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE); context.waitTicks(2);
+        context.runOnClient(mc -> check(HelpKeyMappings.PIN.isUnbound(), "Controls can unbind the key"));
+        hoverComparator(context); context.getInput().pressKey(GLFW.GLFW_KEY_H); context.waitTick();
+        context.runOnClient(mc -> check(!ScrollTooltip.isPinned() && !HelpKeyMappings.pinHint().getString().contains("%s"), "Unbound pin stays inactive with a useful hint"));
+        context.takeScreenshot("keybinding-unbound-ko");
+        context.getInput().releaseShift();
+        context.setScreen(() -> new KeyBindsScreen(null, Minecraft.getInstance().options));
+        clickPinBinding(context, true);
+        context.runOnClient(mc -> check(HelpKeyMappings.PIN.isDefault(), "Reset button restores H"));
+        context.takeScreenshot("keybinding-default-ko");
+        context.setScreen(() -> null);
+    }
+
     @Override public void runTest(ClientGameTestContext context) {
         if (Boolean.getBoolean("redstone_help.capture") || Boolean.getBoolean("redstone_help.audit")) return;
         try (var world = context.worldBuilder().create()) {
@@ -202,6 +295,7 @@ public final class HelpGameTest implements FabricClientGameTest {
             context.getInput().resizeWindow(1000, 700);
             context.runOnClient(mc -> mc.options.guiScale().set(2));
             language(context, "ko_kr");
+            configurationChecks(context);
             context.runOnClient(mc -> {
                 SlidePlayback.reset();
                 for (long t = 0; t < 1800; t += 100) check(SlidePlayback.frame("piston", 3, t) == 0, "First slide duration");
