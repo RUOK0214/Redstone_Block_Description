@@ -1,5 +1,7 @@
 # Redstone Block Description
 
+<img src="src/main/resources/assets/redstone_help/icon.png" alt="레드스톤과 도움말 책 아이콘" width="96" height="96">
+
 Minecraft Java **26.2 / Fabric**용 클라이언트 모드입니다.
 인벤토리에서 레드스톤 관련 아이템 아이콘에 마우스를 올리면 **블록의 기능과 작동 조건**을 표시합니다.
 소스 저장소: [RUOK0214/Redstone_Block_Description](https://github.com/RUOK0214/Redstone_Block_Description).
@@ -8,7 +10,7 @@ Minecraft Java **26.2 / Fabric**용 클라이언트 모드입니다.
 ## 설치
 
 1. Minecraft Java **26.2**, Fabric Loader **0.19.5 이상**, Java **25 이상** 환경을 준비합니다.
-2. `redstone-block-description-0.9.0.jar`와 **Fabric API 0.160.0+26.2**를 해당 게임 프로필의 `mods` 폴더에 넣습니다. 이전 버전의 `redstone-block-description-*.jar` 또는 `redstone-help-*.jar`는 새 파일로 교체합니다.
+2. `redstone-block-description-1.0.0.jar`와 **Fabric API 0.160.0+26.2**를 해당 게임 프로필의 `mods` 폴더에 넣습니다. 이전 버전의 `redstone-block-description-*.jar` 또는 `redstone-help-*.jar`는 새 파일로 교체합니다.
 3. 게임을 실행합니다. Minecraft 언어가 한국어이면 한국어 설명이 표시됩니다.
 
 서버에는 설치할 필요가 없습니다. 다른 프로젝트의 모드나 Mod Menu도 필요하지 않습니다.
@@ -47,7 +49,15 @@ Minecraft Java **26.2 / Fabric**용 클라이언트 모드입니다.
 
 `/redstonedescription`도 같은 명령어로 사용할 수 있습니다. 내 화면에만 적용되는 명령어이므로 서버에 모드를 설치하거나 관리자 권한을 받을 필요가 없습니다.
 온·오프 상태는 `config/redstone-block-description.json`에 저장하여 재실행 후에도 유지합니다. 설명을 꺼도 기존 아이템 이름과 원래 설명은 유지됩니다.
-모드 정보에는 기능·사용법·지원 환경을 포함했으며, Mod Menu의 설명 번역 표시를 사용하는 경우 한국어·영어 소개가 제공됩니다. Mod Menu 설치는 필수가 아닙니다.
+### Mod Menu 소개와 아이콘
+
+Mod Menu에서 **Redstone Block Description**을 선택하면 레드스톤과 도움말 책을 조합한 아이콘, 버전, 소개를 볼 수 있습니다.
+소개는 **사용 방법 / 설명 켜기·끄기 / 수록 정보 / 지원 환경**으로 구분했습니다. 게임 언어에 맞는 한국어·영어 소개를 보려면 Mod Menu의 **설명 번역** 옵션을 켭니다. 이 옵션이 꺼져 있으면 영어 소개가 표시됩니다.
+Mod Menu 설치는 선택 사항이며 모드의 기본 기능에는 필요하지 않습니다.
+
+![Mod Menu의 한국어 소개와 아이콘](docs/screenshots/modmenu-ko.png)
+
+아이콘은 이미지 생성 도구로 제작했습니다. 도움말 안의 사진 190장은 기존처럼 실제 게임에서 촬영한 스크린샷입니다. [아이콘 제작 기록](docs/icon-prompt.txt)
 
 ![인벤토리의 한국어 도움말](docs/screenshots/inventory-hover-ko.png)
 

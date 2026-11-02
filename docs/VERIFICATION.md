@@ -1,6 +1,6 @@
 # 검증 기록
 
-검증일: 2026-11-01. 대상: Redstone Block Description 0.9.0, Minecraft Java 26.2,
+검증일: 2026-11-02. 대상: Redstone Block Description 1.0.0, Minecraft Java 26.2,
 Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 결과
@@ -10,7 +10,10 @@ Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 - 같은 설정 화면에서 마우스 버튼 지정, Esc로 미지정, 초기화 버튼으로 H 복원을 실제 입력으로 검사했습니다. 지정한 키와 미지정 안내가 도움말에 표시되는지도 확인했습니다.
 - 실제 클라이언트 명령 경로로 `/rbd off`, `on`, `toggle`, `status`, `/rbd`, `/redstonedescription toggle`을 실행했습니다. 끄면 고정 창·설명·사진이 사라지고 원래 아이템 이름·설명은 유지됩니다.
 - 꺼진 상태를 설정 파일에 저장하고 다시 읽어 유지되는지 검사했습니다. 테스트는 별도 게임 실행 폴더의 옵션·설정만 변경했습니다.
-- 모드 메타데이터에 기능·사용법·지원 환경을 추가하고, Mod Menu용 한국어·영어 소개 번역을 포함했습니다. Mod Menu 자체 화면은 별도로 실행하지 않았습니다.
+- `gradlew --offline build runClientGameTest -PwithModMenu`: **BUILD SUCCESSFUL**. Mod Menu 20.0.3과 Placeholder API 3.1.0-beta.1+26.2가 있는 별도 테스트 환경에서도 전체 검사를 통과했습니다.
+- 실제 Mod Menu에서 1.0.0 버전, 전용 아이콘, 한국어·영어 목록 요약과 상세 소개를 확인했습니다. 아이콘 경로와 PNG 디코딩을 검사하고 실제 마우스 휠로 소개 하단까지 스크롤한 화면도 촬영했습니다.
+- Mod Menu의 설명 번역을 끄면 사용법·명령어가 포함된 영어 메타데이터로 돌아가는지 확인했습니다. Mod Menu와 Placeholder API는 테스트용 선택 의존성이며 배포 JAR에 포함하지 않습니다.
+- 설치 JAR의 메타데이터를 엄격한 JSON 파서로 읽고, 소개의 줄바꿈·아이콘·언어 파일·190장 사진·라이선스 고지를 확인했습니다. 테스트 코드와 선택 의존성은 설치 파일에서 제외했습니다.
 - 0.8.0의 `-PcaptureIllustrations -PcaptureDetails`와 `-PcaptureDetailCloseups` 촬영 성공. 44개 추가 원본을 연결했으며, 레일 경계·가마솥 전체 구조의 구도를 확인했습니다.
 - 실제 H 키 입력으로 고정 후 Shift 해제·마우스 이탈에도 유지, 목차 클릭으로 악기·수량표·예시 이동, 사진 위치로 복귀를 검사했습니다.
 - 일시정지 후 45틱 동안 사진 유지, 이전·다음 전환과 자동 정지, 재생 재개를 실제 버튼 클릭으로 검사했습니다.
@@ -58,7 +61,12 @@ Fabric Loader 0.19.5, Fabric API 0.160.0+26.2, Java 25, Windows.
 
 ## 화면 기록
 
-이번 클라이언트 검증에서 73장으로 기록했습니다.
+Mod Menu의 한국어·영어 소개 및 하단 화면 4장을 추가해 총 77장을 기록했습니다.
+
+- [Mod Menu의 한국어 소개와 아이콘](screenshots/modmenu-ko.png)
+- [Mod Menu 한국어 소개의 지원 환경](screenshots/modmenu-details-ko.png)
+- [Mod Menu의 영어 소개와 아이콘](screenshots/modmenu-en.png)
+- [Mod Menu 영어 소개의 지원 환경](screenshots/modmenu-details-en.png)
 
 - [조작 설정에서 고정 키를 J로 변경](screenshots/keybinding-custom-ko.png)
 - [변경한 키가 반영된 고정 안내](screenshots/custom-key-hint-ko.png)

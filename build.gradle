@@ -2,7 +2,11 @@ plugins { id 'net.fabricmc.fabric-loom' version "${loom_version}" }
 version = project.mod_version
 group = project.maven_group
 base { archivesName = project.archives_base_name }
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.terraformersmc.com/' }
+    maven { url = 'https://maven.nucleoid.xyz/' }
+}
 loom {
     splitEnvironmentSourceSets()
     mods { 'redstone_help' { sourceSet sourceSets.main; sourceSet sourceSets.client } }
@@ -14,7 +18,9 @@ dependencies {
 }
 processResources {
     inputs.property 'version', project.version
-    filesMatching('fabric.mod.json') { expand 'version': project.version }
+    filesMatching('fabric.mod.json') {
+        expand(['version': project.version]) { escapeBackslash = true }
+    }
 }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 25 }
 java { sourceCompatibility = JavaVersion.VERSION_25; targetCompatibility = JavaVersion.VERSION_25; withSourcesJar() }
@@ -31,6 +37,14 @@ jar {
     from('LICENSE') { rename { "${it}_${project.archives_base_name}" } }
     from('THIRD_PARTY_NOTICES.md')
     from('licenses') { into('licenses') }
+}
+// Optional test environment only; Mod Menu is not required or bundled for players.
+dependencies {
+    gametestCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+    if (project.hasProperty('withModMenu')) {
+        gametestRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+        gametestRuntimeOnly "eu.pb4:placeholder-api:${project.placeholder_api_version}"
+    }
 }
 tasks.named('runClientGameTest') {
     if (project.hasProperty('auditCatalog')) jvmArgs '-Dredstone_help.audit=true'

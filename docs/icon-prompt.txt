@@ -1,0 +1,14 @@
+Redstone Block Description mod icon
+Created with the built-in image_gen tool on 2026-11-02.
+Asset: src/main/resources/assets/redstone_help/icon.png
+The generated PNG is copied without modification. It is a mod icon, separate from the genuine in-game guide screenshots.
+
+Final generation prompt:
+Use case: logo-brand
+Asset type: square PNG icon for the Minecraft Fabric mod "Redstone Block Description", to appear at small sizes in Mod Menu.
+Primary request: Create one finished pixel-art emblem combining an open guidebook and a bright red redstone crystal/dust symbol, expressing factual redstone block help.
+Subject: a clearly readable open cream-colored book with a dark red cover, with one bold angular ruby-red redstone symbol centered above the open pages. Two short charcoal lines on each page suggest reference notes. Keep the book and redstone symbol as one compact silhouette.
+Style: polished chunky pixel art with crisp square steps, consistent pixel grid, minimal flat shading, readable at 32 by 32 pixels, actual final icon artwork not a mockup.
+Composition: centered emblem filling about 82% of square canvas with safe margins. Palette: deep charcoal background #181B24, warm ivory pages, vivid red #EF414B and darker crimson cover.
+Text: no letters, no words, no numbers.
+Constraints: one icon only, square full-bleed solid charcoal background, no transparency, no gradients, no blur, no glow, no decorative particles, no watermark, no Minecraft logo.

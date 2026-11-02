@@ -275,6 +275,14 @@ public final class HelpGameTest implements FabricClientGameTest {
 
     @Override public void runTest(ClientGameTestContext context) {
         if (Boolean.getBoolean("redstone_help.capture") || Boolean.getBoolean("redstone_help.audit")) return;
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("modmenu")) {
+            context.getInput().resizeWindow(1000, 700);
+            context.runOnClient(mc -> mc.options.guiScale().set(2));
+            language(context, "ko_kr");
+            ModMenuChecks.run(context, "ko");
+            language(context, "en_us");
+            ModMenuChecks.run(context, "en");
+        }
         try (var world = context.worldBuilder().create()) {
             world.getConnection().waitForChunksDownload();
             MechanicsChecks.run(context, world);
